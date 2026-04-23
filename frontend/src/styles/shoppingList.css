@@ -1,0 +1,10 @@
+.filter-container {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.article-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}

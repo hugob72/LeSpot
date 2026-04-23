@@ -1,0 +1,33 @@
+a {
+    text-decoration: none;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    background-color: #F7E7CE;
+}
+
+.header.dark-mode {
+    background-color: #f4cc8c;
+}
+
+.header h1 {
+    color: #48A3AE;
+    margin-left: 20px;
+}
+
+.header ul {
+    display: flex;
+    color: #5a4a42;
+    list-style-type: none;
+    gap: 4rem;
+}
+
+.logo {
+    width: 4%;
+    height: 4%;
+    margin-left: 2%;
+}
+
+/* #f4cc8c */

@@ -1,0 +1,36 @@
+.card {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    width: 20rem;
+    background-color: #fbfbfb;
+    position: relative;
+}
+
+.card-image {
+    width: 100%; 
+    border-radius: 5px; 
+}
+
+.promo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30%;
+    height: 7%;
+    background-color: #fd3333;
+    color: white;
+    padding: 2px;
+    position: absolute;
+    z-index: 2;
+    right: 0px;
+    top: 0px;
+    border-radius: 5%;
+}
+
+.promo p {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin: 0;
+}

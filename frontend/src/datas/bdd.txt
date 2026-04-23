@@ -1,0 +1,47 @@
+-- items
+CREATE TABLE items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    price BIGINT NOT NULL,
+    onSale BOOLEAN NOT NULL,
+    image VARCHAR(255) NOT NULL
+) ENGINE = INNODB;
+
+INSERT INTO items VALUES
+(1,"Planche de surf mousse 6' - 500 jaune","Description de l'article 1",157.99,false,'PlancheBleuFonce.png'),
+(2,"SURF MOUSSE 100 renforcé 8'2\" 100 L","Description de l'article 2",319.99,true,'PlancheJaune500.png'),
+(3,"Planche de surf en mousse 6'6 swallow tail 55L - turquoise","Description de l'article 3",189.99,false,'PlancheTurquoise.png')
+
+
+-- User
+CREATE TABLE `user` ( 
+    `id` INT AUTO_INCREMENT PRIMARY KEY, 
+    `firstname` VARCHAR(255) NOT NULL,
+    `lastname` VARCHAR(255) NOT NULL,
+    `email`VARCHAR(255) NOT NULL, 
+    `password` VARCHAR(255) NOT NULL, 
+    UNIQUE `email`(`email`) ) ENGINE = InnoDB;
+
+-- Surfboards
+CREATE TABLE surfboards (
+	idSurfboard INT AUTO_INCREMENT PRIMARY KEY,
+    stability INT NOT NULL CHECK (stability BETWEEN 1 AND 5),
+    maneuverability INT NOT NULL CHECK (maneuverability BETWEEN 1 AND 5),
+    weight INT NOT NULL,
+    volume INT NOT NULL,
+    maxSupportedWeight INT NOT NULL,
+    withLeash BOOLEAN NOT NULL,
+    FOREIGN KEY (idSurfboard) REFERENCES items(id) ON DELETE CASCADE
+) ENGINE = INNODB;
+
+-- Wetsuits
+CREATE TABLE wetsuits (
+	idWetsuit INT AUTO_INCREMENT PRIMARY KEY,
+    size VARCHAR(3) NOT NULL,
+    material VARCHAR(100) NOT NULL,
+    tempMin INT NOT NULL,
+    tempMax INT NOT NULL,
+    isAntiUV BOOLEAN NOT NULL,
+    FOREIGN KEY (idWetsuit) REFERENCES items(id) ON DELETE CASCADE
+) ENGINE = INNODB;

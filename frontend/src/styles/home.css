@@ -1,0 +1,33 @@
+/* .container {
+    display: grid;
+    grid-template-columns: 80% 20%;
+    grid-template-rows: 1fr;
+} */
+
+.home {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    display: flex;
+    flex: 1;
+}
+
+.article-container {
+    display: flex;
+    justify-content: center;
+    width: 80vw;
+    background-color: #fbfbfb;
+    padding: 2%;
+    /* flex-grow: 1; */
+}
+
+.cart-container {
+    width: 20vw;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* La carte prend toute la largeur de la colonne */
+    justify-content: flex-start; /* MAIS elle ne s'étire pas vers le bas */
+}
