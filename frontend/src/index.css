@@ -48,3 +48,13 @@ a {
     padding: 2%;
     /* flex-grow: 1; */
 }
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.center-container {
+  display: flex;
+  justify-content: center;
+}

@@ -1,0 +1,59 @@
+.detail-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 40px 20px;
+    background-color: #fdfaf6;
+}
+
+
+.add-article-form-card {
+    display: flex;
+    flex-wrap: wrap;
+    background: white;
+    max-width: 900px;
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    padding: 5%;
+    justify-content: center;
+}
+
+.combobox {
+    margin-bottom: 15px;
+    /* border: 2px solid #eee; */
+}
+
+.radio-button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    margin-bottom: 20px;
+}
+
+.hidden-radio {
+    display: none;
+}
+
+.radio-button-label {
+    padding: 8px 16px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    color: #333333;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.radio-button-label:hover {
+    background-color: #f1f3f5;
+}
+
+.hidden-radio:checked + .radio-button-label {
+    background-color: #F3A01D;
+    border-color: #F3A01D;
+    color: white;
+}

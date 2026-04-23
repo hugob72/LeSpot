@@ -95,6 +95,60 @@ app.post('/upload', upload.single('image'), (req, res) => {
     }
 });
 
+app.post('/article',(req, res, next) => {
+    console.log("A !");
+    const {name,description,price,image,weight, volume, maxWeight,stability,maneuverability,leash,taille,material,tempMin,tempMax,antiUV } = req.body;
+    console.log(stability)
+    console.log(maneuverability)
+    console.log(weight)
+    console.log(volume)
+    console.log(maxWeight)
+    console.log(leash)
+    if (name && description && price && image) {
+        console.log("OK1")
+        if (stability && maneuverability && weight && volume && maxWeight && leash !== undefined) {
+            console.log("OK2")
+            connection.query('INSERT INTO items (name, description, price, onSale, image) VALUES (?, ?, ?, false, ?)', [name, description, price, image], (error, results) => {
+                if (error) {
+                    console.error('Erreur lors de l\'insertion dans la table `items` : ', error);
+                    res.status(500).json({error: 'Erreur lors de l\'insertion dans la table `items` '});
+                } else {
+                    const articleId = results.insertId;
+                    connection.query('INSERT INTO surfboards (stability, maneuverability, weight, volume, maxSupportedWeight, withLeash) VALUES (?, ?, ?, ?, ?, ?)', [stability, maneuverability, weight, volume, maxWeight, leash], (error, results) => {
+                        if (error) {
+                            console.log('Erreur lors de l\'insertion dans la table `surfboards` : ', error);
+                            res.status(500).json({error: 'Erreur lors de l\'insertion dans la table `surfboards`'});
+                        } else {
+                            res.status(200).json({ message: 'Article créé avec succès'});
+                        }
+                    });
+                }
+            });
+        } else if (taille && material && tempMin && tempMax && antiUV) {
+            connection.query('INSERT INTO items (name, description, price, onSale, image) VALUES (?, ?, ?, false, ?)', [name, description, price, image], (error, results) => {
+                if (error) {
+                    console.error('Erreur lors de l\'insertion dans la table `items` : ', error);
+                    res.status(500).json({error: 'Erreur lors de l\'insertion dans la table `items` '});
+                } else {
+                    const articleId = results.insertId;
+                    connection.query('INSERT INTO wetsuits (size, material, tempMin, tempMax, isAntiUV) VALUES (?, ?, ?, ?, ?)', [taille, material, tempMin, tempMax, antiUV], (error, results) => {
+                        if (error) {
+                            console.log('Erreur lors de l\'insertion dans la table `wetsuits` : ', error);
+                            res.status(500).json({error: 'Erreur lors de l\'insertion dans la table `wetsuits`'});
+                        } else {
+                            res.status(200).json({ message: 'Article créé avec succès'});
+                        }
+                    });
+                }
+            });
+        } else {
+            res.status(400).json({ error: 'Les informations spécifique de l\'article ne sont pas entièrement remplies' });
+        }
+    } else {
+        res.status(400).json({ error: 'Les informations de bases d\'un article ne sont pas entièrement remplies' });
+    }
+});
+
 app.post('/signup', (req, res, next) => {
     const { firstname, lastname, email, password } = req.body;
     if (firstname && lastname && email && password) {
