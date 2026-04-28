@@ -30,6 +30,9 @@ function ShoppingList({cartItems, setCartItems}) {
                 {itemsList.map((article) => (
                     <Article article={article} cartItems={cartItems} setCartItems={setCartItems} />
                 ))}
+                {itemsList.map((article) => (
+                    <Article article={article} cartItems={cartItems} setCartItems={setCartItems} />
+                ))}
             </div>
         </div>
         

@@ -35,7 +35,7 @@ function Article(props) {
                         <img src={article.image} alt={article.name} className="card-image"/>
                     {/* </a> */}
                     <p>{article.price}€</p>
-                    <p>{article.name}</p>
+                    <p className='truncate'>{article.name}</p>
                     <div className="area-button">
                         <button className="button" onClick={() => addArticle(article)}>Ajouter au panier</button>
                     </div>

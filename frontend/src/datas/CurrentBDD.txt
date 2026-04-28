@@ -1,0 +1,121 @@
+DROP TABLE IF EXISTS CommandeHistory;
+DROP TABLE IF EXISTS OrderDetail;
+DROP TABLE IF EXISTS Participation;
+DROP TABLE IF EXISTS Wetsuit;
+DROP TABLE IF EXISTS Surfboard;
+DROP TABLE IF EXISTS `Order`;
+DROP TABLE IF EXISTS Item;
+DROP TABLE IF EXISTS Service;
+DROP TABLE IF EXISTS Complaint;
+DROP TABLE IF EXISTS Sale;
+DROP TABLE IF EXISTS TypeService;
+DROP TABLE IF EXISTS `User`;
+
+CREATE TABLE `User` (
+    idUser INT AUTO_INCREMENT PRIMARY KEY,
+    firstName VARCHAR(50) NOT NULL,
+    lastName VARCHAR(50) NOT NULL,
+    phoneNumber VARCHAR(20),
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('client', 'admin') DEFAULT 'client'
+) ENGINE = InnoDB;
+
+CREATE TABLE TypeService (
+    idTypeService INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(40) NOT NULL
+) ENGINE = InnoDB;
+
+CREATE TABLE Sale (
+    idSale INT AUTO_INCREMENT PRIMARY KEY,
+    rate DECIMAL(5,2) NOT NULL,
+    dateDebut DATETIME NOT NULL,
+    dateFin DATETIME NOT NULL
+) ENGINE = InnoDB;
+
+CREATE TABLE Complaint (
+    idComplaint INT AUTO_INCREMENT PRIMARY KEY,
+    idUser INT NOT NULL,
+    topic VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    state ENUM('ouverte', 'en_cours', 'resolue', 'fermee') DEFAULT 'ouverte',
+    FOREIGN KEY (idUser) REFERENCES `User`(idUser) ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE Service (
+    idService INT AUTO_INCREMENT PRIMARY KEY,
+    idTypeService INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    date DATE NOT NULL,
+    heure TIME NOT NULL,
+    duree INT NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    numberParticipants INT NOT NULL,
+    FOREIGN KEY (idTypeService) REFERENCES TypeService(idTypeService) ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE Item (
+    idItem INT AUTO_INCREMENT PRIMARY KEY,
+    idSale INT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    amount INT NOT NULL DEFAULT 0,
+    image VARCHAR(255) NOT NULL,
+    FOREIGN KEY (idSale) REFERENCES Sale(idSale) ON DELETE SET NULL
+) ENGINE = InnoDB;
+
+CREATE TABLE `Order` (
+    idOrder INT AUTO_INCREMENT PRIMARY KEY,
+    idUser INT NOT NULL,
+    date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    currentStatus ENUM('en_attente', 'payee', 'preparation', 'expediee', 'livree', 'annulee') DEFAULT 'en_attente',
+    FOREIGN KEY (idUser) REFERENCES `User`(idUser) ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE Surfboard (
+    idSurfboard INT PRIMARY KEY,
+    stability INT NOT NULL CHECK (stability BETWEEN 1 AND 5),
+    maneuverability INT NOT NULL CHECK (maneuverability BETWEEN 1 AND 5),
+    weight DECIMAL(5,2) NOT NULL,
+    volume INT NOT NULL,
+    maxSupportedWeight INT NOT NULL,
+    withLeash BOOLEAN NOT NULL,
+    FOREIGN KEY (idSurfboard) REFERENCES Item(idItem) ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE Wetsuit (
+    idWetsuit INT PRIMARY KEY,
+    size VARCHAR(10) NOT NULL,
+    material VARCHAR(100) NOT NULL,
+    tempMin INT NOT NULL,
+    tempMax INT NOT NULL,
+    isAntiUV BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (idWetsuit) REFERENCES Item(idItem) ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE Participation (
+    idUser INT NOT NULL,
+    idService INT NOT NULL,
+    PRIMARY KEY (idUser, idService),
+    FOREIGN KEY (idUser) REFERENCES `User`(idUser) ON DELETE CASCADE,
+    FOREIGN KEY (idService) REFERENCES Service(idService) ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE OrderDetail (
+    idOrder INT NOT NULL,
+    idItem INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 1,
+    unitPrice DECIMAL(10,2) NOT NULL,
+    PRIMARY KEY (idOrder, idItem),
+    FOREIGN KEY (idOrder) REFERENCES `Order`(idOrder) ON DELETE CASCADE,
+    FOREIGN KEY (idItem) REFERENCES Item(idItem) ON DELETE NO ACTION
+) ENGINE = InnoDB;
+
+CREATE TABLE CommandeHistory (
+    idHistory INT AUTO_INCREMENT PRIMARY KEY,
+    idOrder INT NOT NULL,
+    changingDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('en_attente', 'payee', 'preparation', 'expediee', 'livree', 'annulee') NOT NULL,
+    FOREIGN KEY (idOrder) REFERENCES `Order`(idOrder) ON DELETE CASCADE
+) ENGINE = InnoDB;

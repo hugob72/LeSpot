@@ -15,8 +15,8 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <StyleContextProvider>
-        <Router>
-          <Switch>
+      <Router>
+        <Switch>
           <Route exact path="/">
             <Home />
           </Route>
@@ -40,7 +40,6 @@ root.render(
           </Route>
         </Switch>
       </Router>
-      
     </StyleContextProvider>
   </React.StrictMode>
 );
