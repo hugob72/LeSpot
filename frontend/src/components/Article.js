@@ -12,9 +12,9 @@ function Article(props) {
     useEffect(() => {}, []);
 
     function addArticle(article) {
-        const existingItem = cartItems.find(item => item.id === article.id);
+        const existingItem = cartItems.find(item => item.idItem === article.idItem);
         if (existingItem) {
-            setCartItems(cartItems.map(item => item.id === article.id ? {...item, quantity: item.quantity + 1} : item));
+            setCartItems(cartItems.map(item => item.idItem === article.idItem ? {...item, quantity: item.quantity + 1} : item));
         } else {
             setCartItems([...cartItems, {...article, quantity: 1}]);
         }
@@ -22,7 +22,7 @@ function Article(props) {
 
     return (
         <div>
-            <a href={`/detail/${article.id}`}>
+            <a href={`/detail/${article.idItem}`}>
                 <div className="card">
                 
                     {article.onSale === 1 &&
@@ -30,7 +30,7 @@ function Article(props) {
                             <p>{article.onSale ? "Solde" : ""}</p>
                         </div>
                     }
-                    {/* <a href={`/detail/${article.id}`}> */}
+                    {/* <a href={`/detail/${article.idItem}`}> */}
                     
                         <img src={article.image} alt={article.name} className="card-image"/>
                     {/* </a> */}

@@ -74,7 +74,7 @@ CREATE TABLE `Order` (
 ) ENGINE = InnoDB;
 
 CREATE TABLE Surfboard (
-    idSurfboard INT PRIMARY KEY,
+    idSurfboard INT AUTO_INCREMENT PRIMARY KEY,
     stability INT NOT NULL CHECK (stability BETWEEN 1 AND 5),
     maneuverability INT NOT NULL CHECK (maneuverability BETWEEN 1 AND 5),
     weight DECIMAL(5,2) NOT NULL,
@@ -85,7 +85,7 @@ CREATE TABLE Surfboard (
 ) ENGINE = InnoDB;
 
 CREATE TABLE Wetsuit (
-    idWetsuit INT PRIMARY KEY,
+    idWetsuit INT AUTO_INCREMENT PRIMARY KEY,
     size VARCHAR(10) NOT NULL,
     material VARCHAR(100) NOT NULL,
     tempMin INT NOT NULL,
@@ -119,3 +119,11 @@ CREATE TABLE CommandeHistory (
     status ENUM('en_attente', 'payee', 'preparation', 'expediee', 'livree', 'annulee') NOT NULL,
     FOREIGN KEY (idOrder) REFERENCES `Order`(idOrder) ON DELETE CASCADE
 ) ENGINE = InnoDB;
+
+
+--------------------------
+--- Insertion des données
+--------------------------
+
+INSERT INTO Item VALUES
+(1, null, "Planche de surf mousse 6' - 500 jaune","Description de l'article 1",157.99, 48,'PlancheBleuFonce.png');

@@ -34,7 +34,7 @@ app.use(bodyParser.json());
 app.use('/images', express.static('images'));
 
 app.get('/', (req, res, next) => {
-    connection.query('SELECT * FROM items', (error, results) => {
+    connection.query('SELECT * FROM Item', (error, results) => {
         if (error) {
             console.error('Erreur lors de la requête SQL :', error);
             res.status(500).json({ error: 'Erreur lors de la récupération des données' });
@@ -46,7 +46,7 @@ app.get('/', (req, res, next) => {
 
 app.get('/:id', (req, res, next) => {
     const itemId = req.params.id;
-    connection.query('SELECT * FROM items WHERE id = ?', [itemId], (error, results) => {
+    connection.query('SELECT * FROM Item WHERE idItem = ?', [itemId], (error, results) => {
         if (error) {
             console.error('Erreur lors de la requête SQL :', error);
             res.status(500).json({ error: 'Erreur lors de la récupération des données' });
@@ -63,7 +63,7 @@ app.get('/:id', (req, res, next) => {
 app.put('/:id', (req, res, next) => {
     const itemId = req.params.id;
     const updatedItemData = req.body;
-    connection.query('UPDATE items SET ? WHERE id = ?', [updatedItemData, itemId], (error, results) => {
+    connection.query('UPDATE Item SET ? WHERE idItem = ?', [updatedItemData, itemId], (error, results) => {
         if (error) {
             console.error('Erreur lors de la requête SQL :', error);
             res.status(500).json({ error: 'Erreur lors de la mise à jour des données' });
@@ -81,7 +81,7 @@ app.post('/upload', upload.single('image'), (req, res) => {
     if (req.file) {
         const imageUrl = `http://localhost:3001/images/${req.file.filename}`;
         const articleId = req.body.articleId;
-        const updateQuery = 'UPDATE items SET image = ? WHERE id = ?';
+        const updateQuery = 'UPDATE Item SET image = ? WHERE idItem = ?';
         connection.query(updateQuery, [imageUrl, articleId], (error, results) => {
             if (error) {
                 console.error('Erreur lors de la mise à jour de l\'image de l\'article avec l\'URL de l\'image :', error);
@@ -97,7 +97,7 @@ app.post('/upload', upload.single('image'), (req, res) => {
 
 app.post('/article',(req, res, next) => {
     console.log("A !");
-    const {name,description,price,image,weight, volume, maxWeight,stability,maneuverability,leash,taille,material,tempMin,tempMax,antiUV } = req.body;
+    const {name,description,price,amount,image,weight,volume,maxWeight,stability,maneuverability,leash,taille,material,tempMin,tempMax,antiUV } = req.body;
     console.log(stability)
     console.log(maneuverability)
     console.log(weight)
@@ -108,16 +108,16 @@ app.post('/article',(req, res, next) => {
         console.log("OK1")
         if (stability && maneuverability && weight && volume && maxWeight && leash !== undefined) {
             console.log("OK2")
-            connection.query('INSERT INTO items (name, description, price, onSale, image) VALUES (?, ?, ?, false, ?)', [name, description, price, image], (error, results) => {
+            connection.query('INSERT INTO Item (name, description, price, amount, image) VALUES (?, ?, ?, ?, ?)', [name, description, price, amount, image], (error, results) => {
                 if (error) {
-                    console.error('Erreur lors de l\'insertion dans la table `items` : ', error);
-                    res.status(500).json({error: 'Erreur lors de l\'insertion dans la table `items` '});
+                    console.error('Erreur lors de l\'insertion dans la table `Item` : ', error);
+                    res.status(500).json({error: 'Erreur lors de l\'insertion dans la table `Item` '});
                 } else {
                     const articleId = results.insertId;
-                    connection.query('INSERT INTO surfboards (stability, maneuverability, weight, volume, maxSupportedWeight, withLeash) VALUES (?, ?, ?, ?, ?, ?)', [stability, maneuverability, weight, volume, maxWeight, leash], (error, results) => {
+                    connection.query('INSERT INTO Surfboard (stability, maneuverability, weight, volume, maxSupportedWeight, withLeash) VALUES (?, ?, ?, ?, ?, ?)', [stability, maneuverability, weight, volume, maxWeight, leash], (error, results) => {
                         if (error) {
-                            console.log('Erreur lors de l\'insertion dans la table `surfboards` : ', error);
-                            res.status(500).json({error: 'Erreur lors de l\'insertion dans la table `surfboards`'});
+                            console.log('Erreur lors de l\'insertion dans la table `Surfboard` : ', error);
+                            res.status(500).json({error: 'Erreur lors de l\'insertion dans la table `Surfboard`'});
                         } else {
                             res.status(200).json({ message: 'Article créé avec succès'});
                         }
@@ -125,16 +125,16 @@ app.post('/article',(req, res, next) => {
                 }
             });
         } else if (taille && material && tempMin && tempMax && antiUV) {
-            connection.query('INSERT INTO items (name, description, price, onSale, image) VALUES (?, ?, ?, false, ?)', [name, description, price, image], (error, results) => {
+            connection.query('INSERT INTO Item (name, description, price, amount, image) VALUES (?, ?, ?, ?, ?)', [name, description, price, amount, image], (error, results) => {
                 if (error) {
-                    console.error('Erreur lors de l\'insertion dans la table `items` : ', error);
-                    res.status(500).json({error: 'Erreur lors de l\'insertion dans la table `items` '});
+                    console.error('Erreur lors de l\'insertion dans la table `Item` : ', error);
+                    res.status(500).json({error: 'Erreur lors de l\'insertion dans la table `Item` '});
                 } else {
                     const articleId = results.insertId;
-                    connection.query('INSERT INTO wetsuits (size, material, tempMin, tempMax, isAntiUV) VALUES (?, ?, ?, ?, ?)', [taille, material, tempMin, tempMax, antiUV], (error, results) => {
+                    connection.query('INSERT INTO Wetsuit (size, material, tempMin, tempMax, isAntiUV) VALUES (?, ?, ?, ?, ?)', [taille, material, tempMin, tempMax, antiUV], (error, results) => {
                         if (error) {
-                            console.log('Erreur lors de l\'insertion dans la table `wetsuits` : ', error);
-                            res.status(500).json({error: 'Erreur lors de l\'insertion dans la table `wetsuits`'});
+                            console.log('Erreur lors de l\'insertion dans la table `Wetsuit` : ', error);
+                            res.status(500).json({error: 'Erreur lors de l\'insertion dans la table `Wetsuit`'});
                         } else {
                             res.status(200).json({ message: 'Article créé avec succès'});
                         }
@@ -157,7 +157,7 @@ app.post('/signup', (req, res, next) => {
                 console.error('Erreur lors du hachage du mot de passe :', hashError);
                 res.status(500).json({ error: 'Erreur lors de la création de l\'utilisateur' });
             } else {
-                connection.query('INSERT INTO user (firstname, lastname, email, password) VALUES (?, ?, ?, ?)', [firstname, lastname, email, hash], (error, results) => {
+                connection.query('INSERT INTO User (firstname, lastname, email, password) VALUES (?, ?, ?, ?)', [firstname, lastname, email, hash], (error, results) => {
                     if (error) {
                         console.error('Erreur insertion utilisateur dans BDD :', error);
                         res.status(500).json({ error: 'Erreur création utilisateur.' });
@@ -174,7 +174,7 @@ app.post('/signup', (req, res, next) => {
 
 app.post('/login', (req, res, next) => {
     const { email, password } = req.body;
-    connection.query('SELECT * FROM user WHERE email = ?', [email], (error, results) => {
+    connection.query('SELECT * FROM User WHERE email = ?', [email], (error, results) => {
         if (error) {
             console.error('Erreur lors de la requête SQL :', error);
             res.status(500).json({ error: 'Erreur lors de la connexion' });

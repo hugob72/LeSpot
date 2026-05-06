@@ -93,6 +93,9 @@ function AddArticle() {
                     <label>Prix</label>
                     <input type="number" name="price" onChange={handleInputChange} className="detail-input"></input>
 
+                    <label>Quantité en stock</label>
+                    <input type="number" name="amount" onChange={handleInputChange} className="detail-input"></input>
+
                     <label>URL de l'image</label>
                     <input type="file" name="image" onChange={handleImageChange} className="detail-input"/>
 
