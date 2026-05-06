@@ -36,7 +36,7 @@ root.render(
           <Route path="/add-article">
             <AddArticle />
           </Route>
-          <Route path="/admin/dashboard">
+          <Route path="/admin">
             <HomeAdmin />
           </Route>
           <Route path="*">

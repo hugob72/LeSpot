@@ -1,0 +1,98 @@
+
+.admin-layout {
+    display: flex;
+    height: 100vh;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+.admin-sidebar {
+    width: 15%;
+    background-color: #F7E7CE;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+}
+
+.admin-brand {
+    color: #333;
+    text-align: center;
+    padding-top: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+}
+
+.admin-menu-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-menu-item {
+    padding: 20px;
+    color: #333;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.admin-menu-item:hover {
+    background-color: #e1c9a3;
+}
+
+.admin-main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-header {
+    height: 70px;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    z-index: 1;
+}
+
+.admin-header h2 {
+    margin: 0;
+    color: #333;
+}
+
+.admin-user-profile {
+    font-weight: bold;
+    color: #666;
+}
+
+.admin-content-wrapper {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.admin-content-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 30px;
+    min-height: 90%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.admin-content-card h3 {
+    margin-top: 0;
+}
+
+.admin-content-card p {
+    color: #666;
+}
+
+.admin-logo {
+    width: 150px;
+    height: 175px;
+    margin-left: 2%;
+}
