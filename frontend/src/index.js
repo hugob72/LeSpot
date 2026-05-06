@@ -2,14 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router , Route, Switch } from 'react-router-dom'
 import './index.css';
-import Home from './pages/Home';
-import Detail from './pages/Detail';
-import Preferences from './pages/Preferences';
-import Error from './pages/Error';
-import Login from './pages/Login';
-import Profile from './pages/Profile';
+import Home from './pages/client/Home';
+import Detail from './pages/client/Detail';
+import Preferences from './pages/client/Preferences';
+import Error from './pages/client/Error';
+import Login from './pages/client/Login';
+import Profile from './pages/client/Profile';
 import StyleContextProvider from './context/StyleContextProvider';
-import AddArticle from './pages/AddArticle';
+import AddArticle from './pages/client/AddArticle';
+import HomeAdmin from './pages/admin/HomeAdmin';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -34,6 +35,9 @@ root.render(
           </Route>
           <Route path="/add-article">
             <AddArticle />
+          </Route>
+          <Route path="/admin/dashboard">
+            <HomeAdmin />
           </Route>
           <Route path="*">
             <Error />
