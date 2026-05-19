@@ -1,0 +1,99 @@
+.admin-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.admin-btn-add {
+    background-color: #f8ba57;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.admin-btn-add:hover {
+    background-color: #F39C12;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.admin-table th {
+    background-color: #F7E7CE;
+    color: #555;
+    font-weight: 600;
+    padding: 15px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.admin-table td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+    color: #333;
+}
+
+.admin-table tbody tr:hover {
+    background-color: #fafafa;
+}
+
+.admin-table-img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border-radius: 10px;
+    border: 1px solid #eeeeee;
+}
+
+.admin-table-name {
+    font-weight: bold;
+}
+
+.admin-table-desc {
+    max-width: 500px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.stock-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.in-stock {
+    background-color: #e6f4ea;
+    color: #1e8e3e;
+}
+
+.out-of-stock {
+    background-color: #fce8e6;
+    color: #d93025;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2em;
+    margin-right: 10px;
+    opacity: 0.6;
+}
+
+.action-btn:hover {
+    opacity: 1;
+}

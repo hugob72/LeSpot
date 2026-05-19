@@ -8,7 +8,6 @@ function Header() {
     const {theme, setTheme} = useContext(StyleContext);
     return (
         <div className={`header ${theme ? 'dark-mode' : ''}`}>
-            {/* <h1>Le Spot</h1> */}
             <img src={Logo} alt="Logo" className="logo" />
             <ul>
                 <li><Link to="/">Accueil</Link></li>

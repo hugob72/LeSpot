@@ -102,7 +102,8 @@
     transition: opacity 0.2s;
 }
 
-.btn-save { background-color: #f39c12; color: white; }
+.btn-save { background-color: #f8ba57; color: white; }
+.btn-save:hover { background-color: #F39C12; color: white;}
 .btn-edit { background-color: #34495e; color: white; }
 .btn-cancel { background-color: #e74c3c; color: white; }
 

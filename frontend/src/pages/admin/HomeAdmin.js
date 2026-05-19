@@ -3,6 +3,7 @@ import { Switch, Route, Link } from 'react-router-dom';
 import '../../styles/homeAdmin.css';
 import Logo from '../../assets/LeSpotLogo.png';
 import AdminStock from '../../components/admin/AdminStock';
+import AddArticle from '../../components/admin/AddArticle';
 
 function HomeAdmin() {
     return (
@@ -13,12 +14,12 @@ function HomeAdmin() {
                     <img src={Logo} alt="Logo" className="admin-logo" />
                 </div>
                 <ul className="admin-menu-list">
-                    <Link to="/admin/dashboard" className="admin-menu-item">📊 Dashboard</Link>
-                    <Link to="/admin/stock" className="admin-menu-item">🏄‍♂️ Articles</Link>
-                    <Link to="/admin/dashboard" className="admin-menu-item">📦 Commandes</Link>
-                    <Link to="/admin/dashboard" className="admin-menu-item">📅 Services & Cours</Link>
-                    <Link to="/admin/dashboard" className="admin-menu-item">⚠️ Litiges</Link>
-                    <Link to="/admin/dashboard" className="admin-menu-item">👨‍💻 Comptes</Link>
+                    <Link to="/admin/dashboard" className="admin-menu-item">Dashboard</Link>
+                    <Link to="/admin/stock" className="admin-menu-item">Articles</Link>
+                    <Link to="/admin/dashboard" className="admin-menu-item">Commandes</Link>
+                    <Link to="/admin/dashboard" className="admin-menu-item">Services & Cours</Link>
+                    <Link to="/admin/dashboard" className="admin-menu-item">Litiges</Link>
+                    <Link to="/admin/dashboard" className="admin-menu-item">Comptes</Link>
                 </ul>
             </aside>
 
@@ -35,8 +36,11 @@ function HomeAdmin() {
                             <Route exact path="/admin/dashboard">
 
                             </Route>
-                            <Route path="/admin/stock">
+                            <Route exact path="/admin/stock">
                                 <AdminStock />
+                            </Route>
+                            <Route path="/admin/stock/add-article">
+                                <AddArticle />
                             </Route>
                         </Switch>
                     </div>
