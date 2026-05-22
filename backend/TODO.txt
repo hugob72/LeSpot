@@ -1,0 +1,2 @@
+- Modification spécifique à la partie planche ou combinaison
+- Toasts cas d'erreur formulaires

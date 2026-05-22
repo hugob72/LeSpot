@@ -74,7 +74,7 @@ CREATE TABLE `Order` (
 ) ENGINE = InnoDB;
 
 CREATE TABLE Surfboard (
-    idSurfboard INT AUTO_INCREMENT PRIMARY KEY,
+    idSurfboard INT PRIMARY KEY,
     stability INT NOT NULL CHECK (stability BETWEEN 1 AND 5),
     maneuverability INT NOT NULL CHECK (maneuverability BETWEEN 1 AND 5),
     weight DECIMAL(5,2) NOT NULL,
@@ -85,7 +85,7 @@ CREATE TABLE Surfboard (
 ) ENGINE = InnoDB;
 
 CREATE TABLE Wetsuit (
-    idWetsuit INT AUTO_INCREMENT PRIMARY KEY,
+    idWetsuit INT PRIMARY KEY,
     size VARCHAR(10) NOT NULL,
     material VARCHAR(100) NOT NULL,
     tempMin INT NOT NULL,

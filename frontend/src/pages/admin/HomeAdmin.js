@@ -39,6 +39,9 @@ function HomeAdmin() {
                             <Route exact path="/admin/stock">
                                 <AdminStock />
                             </Route>
+                            <Route path="/admin/stock/add-article/:idArticle">
+                                <AddArticle />
+                            </Route>
                             <Route path="/admin/stock/add-article">
                                 <AddArticle />
                             </Route>

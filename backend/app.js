@@ -46,7 +46,7 @@ app.get('/', (req, res, next) => {
 
 app.get('/:id', (req, res, next) => {
     const itemId = req.params.id;
-    connection.query('SELECT * FROM Item WHERE idItem = ?', [itemId], (error, results) => {
+    connection.query('SELECT i.*, s.*, w.* FROM Item i LEFT JOIN Surfboard s ON i.idItem = s.idSurfboard LEFT JOIN Wetsuit w ON i.idItem = w.idWetsuit WHERE i.idItem = ?', [itemId], (error, results) => {
         if (error) {
             console.error('Erreur lors de la requête SQL :', error);
             res.status(500).json({ error: 'Erreur lors de la récupération des données' });
@@ -96,25 +96,16 @@ app.post('/upload', upload.single('image'), (req, res) => {
 });
 
 app.post('/article',(req, res, next) => {
-    console.log("A !");
     const {name,description,price,amount,image,weight,volume,maxWeight,stability,maneuverability,leash,taille,material,tempMin,tempMax,antiUV } = req.body;
-    console.log(stability)
-    console.log(maneuverability)
-    console.log(weight)
-    console.log(volume)
-    console.log(maxWeight)
-    console.log(leash)
     if (name && description && price && image) {
-        console.log("OK1")
         if (stability && maneuverability && weight && volume && maxWeight && leash !== undefined) {
-            console.log("OK2")
             connection.query('INSERT INTO Item (name, description, price, amount, image) VALUES (?, ?, ?, ?, ?)', [name, description, price, amount, image], (error, results) => {
                 if (error) {
                     console.error('Erreur lors de l\'insertion dans la table `Item` : ', error);
                     res.status(500).json({error: 'Erreur lors de l\'insertion dans la table `Item` '});
                 } else {
                     const articleId = results.insertId;
-                    connection.query('INSERT INTO Surfboard (stability, maneuverability, weight, volume, maxSupportedWeight, withLeash) VALUES (?, ?, ?, ?, ?, ?)', [stability, maneuverability, weight, volume, maxWeight, leash], (error, results) => {
+                    connection.query('INSERT INTO Surfboard (idSurfboard, stability, maneuverability, weight, volume, maxSupportedWeight, withLeash) VALUES (?, ?, ?, ?, ?, ?, ?)', [articleId, stability, maneuverability, weight, volume, maxWeight, leash], (error, results) => {
                         if (error) {
                             console.log('Erreur lors de l\'insertion dans la table `Surfboard` : ', error);
                             res.status(500).json({error: 'Erreur lors de l\'insertion dans la table `Surfboard`'});
@@ -125,13 +116,16 @@ app.post('/article',(req, res, next) => {
                 }
             });
         } else if (taille && material && tempMin && tempMax && antiUV) {
+            console.log("AAA !")
+            console.log(taille, material, tempMin, tempMax, antiUV);
+            uv = (antiUV === "on" ? 1 : 0);
             connection.query('INSERT INTO Item (name, description, price, amount, image) VALUES (?, ?, ?, ?, ?)', [name, description, price, amount, image], (error, results) => {
                 if (error) {
                     console.error('Erreur lors de l\'insertion dans la table `Item` : ', error);
                     res.status(500).json({error: 'Erreur lors de l\'insertion dans la table `Item` '});
                 } else {
                     const articleId = results.insertId;
-                    connection.query('INSERT INTO Wetsuit (size, material, tempMin, tempMax, isAntiUV) VALUES (?, ?, ?, ?, ?)', [taille, material, tempMin, tempMax, antiUV], (error, results) => {
+                    connection.query('INSERT INTO Wetsuit (idWetsuit, size, material, tempMin, tempMax, isAntiUV) VALUES (?, ?, ?, ?, ?, ?)', [articleId, taille, material, tempMin, tempMax, uv], (error, results) => {
                         if (error) {
                             console.log('Erreur lors de l\'insertion dans la table `Wetsuit` : ', error);
                             res.status(500).json({error: 'Erreur lors de l\'insertion dans la table `Wetsuit`'});
@@ -148,6 +142,21 @@ app.post('/article',(req, res, next) => {
         res.status(400).json({ error: 'Les informations de bases d\'un article ne sont pas entièrement remplies' });
     }
 });
+
+app.delete('/article/:id', (req, res, next) => {
+    const itemId = req.params.id;
+    connection.query('DELETE FROM Item WHERE idItem = ?', [itemId], (error, results) => {
+        if (error) {
+            res.status(500).json({ error: 'Erreur lors de la suppression de l\'article' });
+        } else {
+            if (results.affectedRows > 0) {
+                res.status(200).json({ message: 'Article supprimé avec succès' });
+            } else {
+                res.status(404).json({ error: 'Aucun article trouvé avec cet ID' });
+            }
+        }
+    })
+})
 
 app.post('/signup', (req, res, next) => {
     const { firstname, lastname, email, password } = req.body;

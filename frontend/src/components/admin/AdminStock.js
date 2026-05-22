@@ -17,15 +17,35 @@ function AdminStock() {
             });
     }, [])
 
-    const navigateToAddArticle = () => {
+    function navigateToAddArticle() {
         history.push('/admin/stock/add-article');
+    }
+
+    function navigateToModifyArticle(id) {
+        history.push('/admin/stock/add-article/' + id);
+    }
+
+    function deleteArticle(id) {
+        fetch(`http://localhost:3001/article/${id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Suppression effectuée en BDD");
+            console.log(itemsList);
+            setItemsList(itemsList.filter(item => item.idItem !== id));
+        })
+        .catch(error => {
+            console.error('Erreur lors de la suppression de l\'article : ', error);
+        })
     }
 
     return (
         <div>
             <div className="admin-table-header">
                 <h3>Gestion du stock</h3>
-                <button className="admin-btn-add" onClick={navigateToAddArticle}>Ajouter un article</button>
+                <button className="admin-btn-add" onClick={() => navigateToAddArticle()}>Ajouter un article</button>
             </div>
             
             <div className="table-responsive">
@@ -42,7 +62,6 @@ function AdminStock() {
                     </thead>
                     <tbody>
                         {itemsList.map((article) => (
-                            // Utilise l'ID de l'article pour la key si possible, sinon l'index
                             <tr key={article.idItem}>
                                 <td><img src={article.image} alt={article.name} className="admin-table-img" /></td>
                                 <td className="admin-table-name">{article.name}</td>
@@ -54,8 +73,8 @@ function AdminStock() {
                                     </span>
                                 </td>
                                 <td>
-                                    <button className="action-btn edit-btn">✏️</button>
-                                    <button className="action-btn delete-btn">🗑️</button>
+                                    <button className="action-btn edit-btn" onClick={() => navigateToModifyArticle(article.idItem)}>✏️</button>
+                                    <button className="action-btn delete-btn" onClick={() => deleteArticle(article.idItem)}>🗑️</button>
                                 </td>
                             </tr>
                         ))}

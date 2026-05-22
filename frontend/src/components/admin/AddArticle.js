@@ -1,11 +1,14 @@
 import Combobox from "react-widgets/Combobox"
 import Header from "../../components/client/Header";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import "react-widgets/styles.css";
 import "../../styles/addArticle.css";
 
 function AddArticle() {
-
+    const { idArticle } = useParams();
+    const history = useHistory();
     const [typeArticle, setTypeArticle] = useState("---");
     const [materialWetsuit, setMaterialWetsuit] = useState("---");
     const [image, setImage] = useState(null);
@@ -16,6 +19,28 @@ function AddArticle() {
         image: '',
         onSale: false
     });
+
+    useEffect(() => {
+        if (idArticle) {
+           fetch(`http://localhost:3001/${idArticle}`)
+            .then(response => response.json())
+            .then(data => {
+                setArticle(data);
+                if (data.withLeash !== null && data.withLeash !== undefined) {
+                    setTypeArticle("Planche de surf");
+                } else if (data.isAntiUV !== null && data.isAntiUV !== undefined) {
+                    setTypeArticle("Combinaison");
+                } else {
+                    setTypeArticle("---");
+                }
+                console.log("Bbbb")
+                console.log(data)
+            })
+            .catch(error => {
+                console.error('Erreur lors de la récupération de l\'article :', error);
+            }); 
+        }
+    }, []);
 
     const handleInputChange = (e) => {
         const {name, value} = e.target;
@@ -49,7 +74,6 @@ function AddArticle() {
                     body: formData
                 });
                 const uploadData = await uploadResponse.json();
-                // Assume server returns { imageUrl: "path/to/img.jpg" }
                 finalImageUrl = uploadData.imageUrl || uploadData.image; 
             } catch (error) {
                 console.error('Erreur upload image:', error);
@@ -67,7 +91,58 @@ function AddArticle() {
         .then(response => response.json())
         .then(data => {
             console.log("Ajout effectué en BDD")
-            setArticle(null);
+            setArticle({
+                name: '',
+                price: 0,
+                description: '',
+                image: '',
+                onSale: false
+            });
+            history.push('/admin/stock');
+        })
+        .catch(error => {
+            console.error('Erreur lors de la création de l\'article : ', error);
+        })
+
+    }
+
+    const handleChangeItem = async () => {
+        let finalImageUrl = article.image;
+        if (article.image !== image) {
+            const formData = new FormData();
+            formData.append('image', image);
+
+            try {
+                const uploadResponse = await fetch('http://localhost:3001/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const uploadData = await uploadResponse.json();
+                finalImageUrl = uploadData.imageUrl || uploadData.image; 
+            } catch (error) {
+                console.error('Erreur upload image:', error);
+            }
+        }
+
+        const articleToSave = { ...article, image:finalImageUrl};
+        console.log(articleToSave);
+
+        fetch('http://localhost:3001/article', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(articleToSave)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Modification effectuée en BDD")
+            setArticle({
+                name: '',
+                price: 0,
+                description: '',
+                image: '',
+                onSale: false
+            });
+            history.push('/admin/stock');
         })
         .catch(error => {
             console.error('Erreur lors de la création de l\'article : ', error);
@@ -78,26 +153,26 @@ function AddArticle() {
     return(
        <div>
         <div className="flex-column">
-            <h1>Formulaire de création d'un article</h1>
+            <h1>Formulaire de {idArticle ? "modification": "création"} d'un article</h1>
 
             <label>Nom du produit</label>
-            <input type="text" name="name" onChange={handleInputChange} className="detail-input"></input>
+            <input type="text" name="name" onChange={handleInputChange} className="detail-input" value={article.name}></input>
 
             <label>Description du produit</label>
-            <input type="text" name="description" onChange={handleInputChange} className="detail-input"></input>
+            <input type="text" name="description" onChange={handleInputChange} className="detail-input" value={article.description}></input>
 
-            {/* TODO : Vérification du décimal */}
             <label>Prix</label>
-            <input type="number" name="price" onChange={handleInputChange} className="detail-input"></input>
+            <input type="number" name="price" onChange={handleInputChange} className="detail-input" value={article.price}></input>
 
             <label>Quantité en stock</label>
-            <input type="number" name="amount" onChange={handleInputChange} className="detail-input"></input>
+            <input type="number" name="amount" onChange={handleInputChange} className="detail-input" value={article.amount}></input>
 
             <label>URL de l'image</label>
+            {idArticle ? <img src={article.image} alt={article.image}/> : null}
             <input type="file" name="image" onChange={handleImageChange} className="detail-input"/>
 
             <label>Type d'article</label>
-            <Combobox defaultValue="---" data={["Planche de surf", "Combinaison"]} onChange={handleTypeArticleChange} className="combobox" />
+            <Combobox data={["Planche de surf", "Combinaison"]} onChange={handleTypeArticleChange} className="combobox" value={typeArticle} />
 
             {typeArticle === "Planche de surf" && (
                 <div className="flex-column">
@@ -161,7 +236,11 @@ function AddArticle() {
             )}
 
             <div className="center-container">
-                <button onClick={handleAddItem} className="button btn-save">Ajouter</button>
+                {idArticle ? 
+                <button onClick={handleAddItem} className="button btn-save">Modifier</button>
+                :
+                <button onClick={handleChangeItem} className="button btn-save">Ajouter</button>
+                }
             </div>
         </div>
     </div> 
