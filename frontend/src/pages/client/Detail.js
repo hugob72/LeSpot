@@ -17,6 +17,28 @@ function Detail() {
         image: '',
         onSale: false
     });
+    const unite = {
+        price: '€',
+        weight: 'kg',
+        maxSupportedWeight: 'kg',
+        volume: 'L',
+        tempMin: '°C',
+        tempMax: '°C'
+    }
+    const mapping = {
+        price: 'Prix',
+        stability: 'Stabilité',
+        maneuverabilité: 'Maniabilité',
+        volume: 'Volume',
+        weight: 'Poids',
+        maxSupportedWeight: 'Poids maximum supporté',
+        withLeash: 'Leash',
+        size: 'Taille',
+        material: 'Matière principale',
+        tempMin: 'Température minimale',
+        tempMax: 'Température maximale',
+        isAntiUV: 'Anti UV'
+    }
 
     useEffect(() => {
             fetch(`http://localhost:3001/${idArticle}`)
@@ -108,43 +130,43 @@ function Detail() {
     return (
     <div className="home">
         <Header />
-        <main className="detail-wrapper">
+        <main className="main-section">
             <div className="product-card">
                 <div className="product-image-section">
                     <img src={article.image} alt={article.name} className="detail-image"/>
                 </div>
 
                 <div className="product-info-section">
-                    <h1>Détail du produit : </h1>
-                    {/*  <span className="highlight">#{idArticle}</span> */}
-                    
-                    {!isEditing ? (
-                        <div className="view-mode">
-                            <h2 className="product-title">{article.name}</h2>
-                            <p className="product-price">{article.price}€</p>
-                            <p className="product-description">{article.description}</p>
-                            <button onClick={() => setIsEditing(true)} className="button btn-edit">Modifier</button>
-                        </div>
-                    ) : (
-                        <div className="edit-mode">
-                            <label>Nom du produit</label>
-                            <input type="text" name="name" value={updatedItem.name} onChange={handleInputChange} className="detail-input"/>
-                            
-                            <label>Prix (€)</label>
-                            <input type="number" name="price" value={updatedItem.price} onChange={handleInputChange} className="detail-input"/>
-                            
-                            <label>Description</label>
-                            <textarea name="description" value={updatedItem.description} onChange={handleInputChange} className="detail-input" rows="4"/>
-                            
-                            <label>URL de l'image</label>
-                            <input type="file" name="image" onChange={handleImageChange} className="detail-input"/>
+                        
+                    <h1 className="product-title">{article.name}</h1>
 
-                            <div className="button-group">
-                                <button onClick={handleUpdateItem} className="button btn-save">Enregistrer</button>
-                                <button onClick={() => setIsEditing(false)} className="button btn-cancel">Annuler</button>
-                            </div>
+                    <p className="product-description">{article.description}</p>
+
+                    <div className='price'>
+                        <p className="product-price">{article.price}€</p>
+                        <div className='product-button-action'>
+                            <button>Ajouter au panier</button>
+                            <button>Favori</button>
                         </div>
-                    )}
+                    </div>
+
+                    <div className='product-specifications table-responsive'>
+                        <table className="admin-table">
+
+                            <tbody>
+                                {Object.entries(article).map(([key, value]) => (
+                                    (mapping[key] && value !== null && value !== undefined) && (
+                                        <tr key={key}>
+                                            <td>{mapping[key]}</td>
+                                            <td>{value} {unite[key]}</td>
+                                        </tr>
+                                    )
+                                ))}
+                            </tbody>
+
+                        </table>
+                    </div>
+         
                 </div>
             </div>
         </main>

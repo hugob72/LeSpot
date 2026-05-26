@@ -24,6 +24,11 @@ a {
     gap: 4rem;
 }
 
+.header ul li:hover {
+    height: 100%;
+    background-color: #e1c9a3;
+}
+
 .logo {
     width: 4%;
     height: 4%;

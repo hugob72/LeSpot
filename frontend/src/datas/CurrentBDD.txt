@@ -21,6 +21,13 @@ CREATE TABLE `User` (
     role ENUM('client', 'admin') DEFAULT 'client'
 ) ENGINE = InnoDB;
 
+ALTER TABLE `User`
+ADD COLUMN address VARCHAR(255) NULL,
+ADD COLUMN postalCode VARCHAR(20) NULL,
+ADD COLUMN city VARCHAR(100) NULL,
+ADD COLUMN country VARCHAR(100) NULL,
+ADD COLUMN paymentPreference VARCHAR(50) NULL;
+
 CREATE TABLE TypeService (
     idTypeService INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(40) NOT NULL

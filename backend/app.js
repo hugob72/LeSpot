@@ -46,7 +46,7 @@ app.get('/', (req, res, next) => {
 
 app.get('/:id', (req, res, next) => {
     const itemId = req.params.id;
-    connection.query('SELECT i.*, s.*, w.* FROM Item i LEFT JOIN Surfboard s ON i.idItem = s.idSurfboard LEFT JOIN Wetsuit w ON i.idItem = w.idWetsuit WHERE i.idItem = ?', [itemId], (error, results) => {
+    connection.query('SELECT i.*, s.*, w.* FROM Item i LEFT JOIN Surfboard s ON i.idItem = s.idSurfboard LEFT JOIN Wetsuit w ON i.idItem = w.idWetsuit WHERE i.idItem = ? ', [itemId], (error, results) => {
         if (error) {
             console.error('Erreur lors de la requête SQL :', error);
             res.status(500).json({ error: 'Erreur lors de la récupération des données' });
