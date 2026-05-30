@@ -159,19 +159,21 @@ app.delete('/article/:id', (req, res, next) => {
 })
 
 app.post('/signup', (req, res, next) => {
-    const { firstname, lastname, email, password } = req.body;
-    if (firstname && lastname && email && password) {
+    const { firstname, lastname, email, password, phoneNumber } = req.body;
+    if (firstname && lastname && email && password && phoneNumber) {
         bcrypt.hash(password, 10, (hashError, hash) => {
             if (hashError) {
                 console.error('Erreur lors du hachage du mot de passe :', hashError);
                 res.status(500).json({ error: 'Erreur lors de la création de l\'utilisateur' });
             } else {
-                connection.query('INSERT INTO User (firstname, lastname, email, password) VALUES (?, ?, ?, ?)', [firstname, lastname, email, hash], (error, results) => {
+                connection.query('INSERT INTO User (firstname, lastname, email, password, phoneNumber) VALUES (?, ?, ?, ?, ?)', [firstname, lastname, email, hash, phoneNumber], (error, results) => {
                     if (error) {
                         console.error('Erreur insertion utilisateur dans BDD :', error);
                         res.status(500).json({ error: 'Erreur création utilisateur.' });
                     } else {
                         const userId = results.insertId; // Récupére ID user nouvellement créé
+                        const token = jwt.sign({userId: userId}, 'votre_cle_secrete', { expiresIn: '24h' });
+                        res.status(200).json({ message: 'Inscription réussie !', userId: userId, token: token });
                     }
                 });
             }
@@ -196,7 +198,7 @@ app.post('/login', (req, res, next) => {
                         res.status(500).json({ error: 'Erreur lors de la connexion' });
                     } else {
                         if (match) {
-                            const userId = results[0].id; // Récupére ID user connecté
+                            const userId = results[0].idUser; // Récupére ID user connecté
                             const token = jwt.sign({userId: userId}, 'votre_cle_secrete', { expiresIn: '24h' });
                             res.status(200).json({ message: 'Connexion réussie !', userId: userId, token: token });
                         } else {
@@ -209,6 +211,43 @@ app.post('/login', (req, res, next) => {
             }
         }
     });
+});
+
+app.get('/user/:id', (req, res) => {
+    const userId = req.params.id;
+    connection.query('SELECT idUser, firstName, lastName, phoneNumber, email, role, address, postalCode, city, country, paymentPreference FROM User WHERE idUser = ?', [userId], (error, results) => {
+        if (error) {
+            console.error('Erreur lors de la requête SQL :', error);
+            res.status(500).json({ error: 'Erreur lors de la récupération des données utilisateur' });
+        } else {
+            if (results.length > 0) {
+                res.status(200).json(results[0]);
+            } else {
+                res.status(404).json({ error: 'Aucun utilisateur trouvé avec cet ID' });
+            }
+        }
+    });
+});
+
+app.put('/user/:id', (req, res) => {
+    const userId = req.params.id;
+    const { firstName, lastName, phoneNumber, address, postalCode, city, country, paymentPreference } = req.body;
+    connection.query(
+        'UPDATE User SET firstName = ?, lastName = ?, phoneNumber = ?, address = ?, postalCode = ?, city = ?, country = ?, paymentPreference = ? WHERE idUser = ?',
+        [firstName, lastName, phoneNumber, address, postalCode, city, country, paymentPreference, userId],
+        (error, results) => {
+            if (error) {
+                console.error('Erreur lors de la requête SQL :', error);
+                res.status(500).json({ error: 'Erreur lors de la mise à jour des données utilisateur' });
+            } else {
+                if (results.affectedRows > 0) {
+                    res.status(200).json({ message: 'Utilisateur mis à jour avec succès' });
+                } else {
+                    res.status(404).json({ error: 'Aucun utilisateur trouvé avec cet ID' });
+                }
+            }
+        }
+    );
 });
 
 // app.use((req, res, next) => {
