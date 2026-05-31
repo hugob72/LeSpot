@@ -34,7 +34,19 @@ app.use(bodyParser.json());
 app.use('/images', express.static('images'));
 
 app.get('/', (req, res, next) => {
-    connection.query('SELECT * FROM Item', (error, results) => {
+    const query = `
+        SELECT i.*, 
+               CASE 
+                   WHEN s.idSurfboard IS NOT NULL THEN 'board' 
+                   WHEN w.idWetsuit IS NOT NULL THEN 'wetsuit' 
+                   ELSE 'autre' 
+               END as itemType
+        FROM Item i
+        LEFT JOIN Surfboard s ON i.idItem = s.idSurfboard
+        LEFT JOIN Wetsuit w ON i.idItem = w.idWetsuit
+    `;
+
+    connection.query(query, (error, results) => {
         if (error) {
             console.error('Erreur lors de la requête SQL :', error);
             res.status(500).json({ error: 'Erreur lors de la récupération des données' });
@@ -42,7 +54,7 @@ app.get('/', (req, res, next) => {
             res.status(200).json(results);
         }
     });
-})
+});
 
 app.get('/:id', (req, res, next) => {
     const itemId = req.params.id;
@@ -62,17 +74,75 @@ app.get('/:id', (req, res, next) => {
 
 app.put('/:id', (req, res, next) => {
     const itemId = req.params.id;
-    const updatedItemData = req.body;
-    connection.query('UPDATE Item SET ? WHERE idItem = ?', [updatedItemData, itemId], (error, results) => {
+    
+    // 1. On extrait toutes les données envoyées par le Frontend
+    const { 
+        // Données communes
+        name, price, description, amount, image, 
+        // Données Surfboard
+        weight, volume, maxWeight, stability, maneuverability, leash,
+        // Données Wetsuit
+        taille, material, tempMin, tempMax, antiUV 
+    } = req.body;
+
+    // 2. On prépare l'objet pour la table Item (seulement les colonnes qui existent dans Item)
+    const itemToUpdate = {
+        name,
+        price,
+        description,
+        amount,
+        image
+    };
+
+    // 3. Première requête : Mise à jour de la table de base (Item)
+    connection.query('UPDATE Item SET ? WHERE idItem = ?', [itemToUpdate, itemId], (error, results) => {
         if (error) {
-            console.error('Erreur lors de la requête SQL :', error);
-            res.status(500).json({ error: 'Erreur lors de la mise à jour des données' });
+            console.error('Erreur lors de la mise à jour de Item :', error);
+            return res.status(500).json({ error: 'Erreur lors de la mise à jour des données de base' });
+        } 
+        
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Aucun article trouvé avec cet ID' });
+        }
+
+        // 4. Deuxième requête : Mise à jour de la table enfant
+        // -- Si on détecte des caractéristiques de Planche de surf --
+        if (stability && maneuverability && weight && volume && maxWeight) {
+            const isLeash = (leash === true || leash === 'true' || leash === 1) ? 1 : 0;
+            const querySurfboard = `
+                UPDATE Surfboard 
+                SET stability = ?, maneuverability = ?, weight = ?, volume = ?, maxSupportedWeight = ?, withLeash = ? 
+                WHERE idSurfboard = ?
+            `;
+            
+            connection.query(querySurfboard, [stability, maneuverability, weight, volume, maxWeight, isLeash, itemId], (errSurf, resSurf) => {
+                if (errSurf) {
+                    console.error('Erreur mise à jour Surfboard :', errSurf);
+                    return res.status(500).json({ error: 'Erreur mise à jour de la planche' });
+                }
+                return res.status(200).json({ message: 'Planche de surf modifiée avec succès' });
+            });
+
+        // -- Si on détecte des caractéristiques de Combinaison --
+        } else if (taille && material && tempMin && tempMax) {
+            const isUV = (antiUV === true || antiUV === 'true' || antiUV === 'on' || antiUV === 1) ? 1 : 0;
+            const queryWetsuit = `
+                UPDATE Wetsuit 
+                SET size = ?, material = ?, tempMin = ?, tempMax = ?, isAntiUV = ? 
+                WHERE idWetsuit = ?
+            `;
+
+            connection.query(queryWetsuit, [taille, material, tempMin, tempMax, isUV, itemId], (errWet, resWet) => {
+                if (errWet) {
+                    console.error('Erreur mise à jour Wetsuit :', errWet);
+                    return res.status(500).json({ error: 'Erreur mise à jour de la combinaison' });
+                }
+                return res.status(200).json({ message: 'Combinaison modifiée avec succès' });
+            });
+            
+        // -- S'il n'y a pas de caractéristiques spécifiques (Sécurité) --
         } else {
-            if (results.affectedRows > 0) {
-                res.status(200).json({ message: 'Article mis à jour avec succès' });
-            } else {
-                res.status(404).json({ error: 'Aucun article trouvé avec cet ID' });
-            }
+            return res.status(200).json({ message: 'Article de base modifié avec succès' });
         }
     });
 });

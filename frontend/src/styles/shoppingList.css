@@ -1,10 +1,94 @@
-.filter-container {
+/* Layout global de la page boutique */
+.shopping-page {
     display: flex;
-    margin-bottom: 20px;
+    flex-direction: column; /* Organise la page de haut en bas */
+    gap: 30px;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
+/* Barre de filtres (en haut) */
+.filter-topbar {
+    background-color: #f8fafc;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.filter-form {
+    display: flex;
+    flex-wrap: wrap; /* Permet de passer à la ligne sur petit écran */
+    gap: 20px;
+    align-items: flex-end; /* Aligne le bouton avec les champs de saisie */
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1; /* Permet aux champs de prendre l'espace disponible équitablement */
+    min-width: 200px; /* Évite que les champs soient trop écrasés */
+}
+
+.filter-group label {
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #475569;
+    font-size: 0.9rem;
+}
+
+.filter-group input[type="text"],
+.filter-group input[type="number"],
+.filter-group select {
+    padding: 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 1rem;
+    height: 42px; /* Hauteur fixe pour uniformiser avec le bouton */
+    box-sizing: border-box;
+}
+
+.btn-reset {
+    padding: 10px 20px;
+    height: 42px; /* Même hauteur que les inputs */
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    white-space: nowrap; /* Empêche le texte du bouton de se couper sur 2 lignes */
+}
+
+.btn-reset:hover {
+    background-color: #dc2626;
+}
+
+/* Zone des articles */
 .article-container {
     display: flex;
     flex-wrap: wrap;
+    justify-content: center; /* Centre les cartes s'il n'y en a pas assez pour remplir la ligne */
     gap: 20px;
+}
+
+.no-results-message {
+    width: 100%;
+    text-align: center;
+    padding: 50px;
+    background-color: #f8fafc;
+    border-radius: 8px;
+    color: #64748b;
+    font-size: 1.2rem;
+    border: 1px dashed #cbd5e1;
+}
+
+/* Enlève le style de lien natif sur les cartes du composant Article */
+.card-link {
+    text-decoration: none;
+    color: inherit;
 }
