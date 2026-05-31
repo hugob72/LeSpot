@@ -1,0 +1,165 @@
+/* Wrapper principal sans conflit avec le reste du site */
+.my-complaints-wrapper {
+    width: 95%;
+    max-width: 1000px; /* Un peu moins large que le détail pour centrer la lecture */
+    margin: 50px auto;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    padding: 40px;
+    box-sizing: border-box;
+    min-height: 60vh;
+}
+
+/* En-tête (Titre + Bouton) */
+.complaints-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 20px;
+}
+
+.complaints-header h1 {
+    color: #0f172a;
+    margin: 0;
+    font-size: 2rem;
+}
+
+.btn-new-complaint {
+    background-color: #f8ba57; /* Ta couleur jaune/orange d'origine */
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(248, 186, 87, 0.3);
+    transition: all 0.2s ease;
+}
+
+.btn-new-complaint:hover {
+    background-color: #f6a623;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(248, 186, 87, 0.4);
+}
+
+/* État vide */
+.empty-state {
+    text-align: center;
+    padding: 50px;
+    color: #64748b;
+    font-size: 1.1rem;
+    font-style: italic;
+    background-color: #f8fafc;
+    border-radius: 8px;
+}
+
+/* Liste et Cartes */
+.complaints-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.complaint-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.complaint-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background-color: #f8fafc;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Effet visuel au survol : petite barre d'accentuation à gauche */
+.complaint-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: transparent;
+    transition: background-color 0.2s ease;
+}
+
+.complaint-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.05);
+    background-color: #ffffff;
+    border-color: #cbd5e1;
+}
+
+.complaint-card:hover::before {
+    background-color: #3b82f6;
+}
+
+/* Textes de la carte */
+.complaint-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.complaint-type {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: #3b82f6;
+    letter-spacing: 0.5px;
+}
+
+.complaint-info h3 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 1.25rem;
+}
+
+.complaint-id {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+/* Badges de statuts (Alignés avec ta Base de Données) */
+.complaint-state {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.state-ouverte { background-color: #fef3c7; color: #d97706; }
+.state-en-cours { background-color: #dbeafe; color: #2563eb; }
+.state-resolue { background-color: #d1fae5; color: #059669; }
+.state-fermee { background-color: #f1f5f9; color: #475569; }
+
+/* --- RESPONSIVE MOBILE --- */
+@media (max-width: 768px) {
+    .complaints-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+    
+    .complaint-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .complaint-state {
+        align-self: flex-start;
+    }
+}

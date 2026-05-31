@@ -31,19 +31,30 @@ function OrderCollapse({ order, isExpanded, toggleOrder }) {
                     </span>
                 </div>
                 <div className="order-collapse-header-right">
-                    <p className="order-collapse-total">{orderTotal.toFixed(2)} €</p>
-                    <span className="order-collapse-toggle-text">
-                        {isExpanded ? '▲ Voir moins' : '▼ Voir plus'}
-                    </span>
+                <p className="order-collapse-total">{orderTotal.toFixed(2)} €</p>
+                <span className="order-collapse-toggle-text">
+                    {isExpanded ? '▲ Voir moins' : '▼ Voir plus'}
+                </span>
                 </div>
-            </div>
+                </div>
 
-            {/* Détails de la commande (dépliant) */}
-            {isExpanded && (
+                {/* Détails de la commande (dépliant) */}
+                {isExpanded && (
                 <div className="order-collapse-content">
-                    
-                    {/* Fil d'ariane / Barre de progression */}
-                    {order.currentStatus !== 'annulee' ? (
+                <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '15px'}}>
+                    <button 
+                        className="btn-reclamation" 
+                        onClick={(e) => { 
+                            e.stopPropagation(); 
+                            window.location.href = `/create-complaint?orderId=${order.idOrder}`; 
+                        }}
+                        style={{ padding: '8px 15px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                        Réclamation
+                    </button>
+                </div>
+
+                {/* Fil d'ariane / Barre de progression */}                    {order.currentStatus !== 'annulee' ? (
                         <div className="order-progress-container">
                             {/* Ligne de fond */}
                             <div className="order-progress-line"></div>

@@ -367,7 +367,7 @@ app.get('/user/:userId/hasBought/:articleId', (req, res) => {
 app.post('/article/:id/reviews', (req, res) => {
     const itemId = req.params.id;
     const { idUser, rating, comment } = req.body;
-    
+
     if (!idUser || !rating || rating < 1 || rating > 5) {
         return res.status(400).json({ error: 'Données invalides pour l\'avis' });
     }
@@ -379,6 +379,88 @@ app.post('/article/:id/reviews', (req, res) => {
             return res.status(500).json({ error: 'Erreur lors de l\'ajout de l\'avis' });
         }
         res.status(200).json({ message: 'Avis ajouté avec succès' });
+    });
+});
+
+app.post('/complaint', (req, res) => {
+    // Ajout de 'type' ici
+    const { idUser, idOrder, type, topic, description } = req.body;
+    
+    if (!idUser || !idOrder || !type || !topic || !description) {
+        return res.status(400).json({ error: 'Données incomplètes' });
+    }
+    
+    // Ajout de 'type' dans la requête SQL
+    const query = "INSERT INTO Complaint (idUser, idOrder, type, topic, description) VALUES (?, ?, ?, ?, ?)";
+    
+    connection.query(query, [idUser, idOrder, type, topic, description], (error, results) => {
+        if (error) {
+            console.error('Erreur création réclamation:', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        res.status(200).json({ message: 'Réclamation créée', idComplaint: results.insertId });
+    });
+});
+
+app.get('/complaint/user/:userId', (req, res) => {
+    const userId = req.params.userId;
+    const query = "SELECT * FROM Complaint WHERE idUser = ? ORDER BY idComplaint DESC";
+    connection.query(query, [userId], (error, results) => {
+        if (error) {
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        res.status(200).json(results);
+    });
+});
+
+app.get('/complaint/:id', (req, res) => {
+    const complaintId = req.params.id;
+    const query = "SELECT c.*, u.firstName, u.lastName FROM Complaint c JOIN User u ON c.idUser = u.idUser WHERE c.idComplaint = ?";
+    connection.query(query, [complaintId], (error, results) => {
+        if (error) {
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        if (results.length > 0) {
+            res.status(200).json(results[0]);
+        } else {
+            res.status(404).json({ error: 'Réclamation introuvable' });
+        }
+    });
+});
+
+app.get('/complaint/:id/messages', (req, res) => {
+    const complaintId = req.params.id;
+    // CORRECTION ICI : ORDER BY cm.sendDate (au lieu de publishDate)
+    const query = `
+        SELECT cm.*, u.firstName, u.lastName, u.role 
+        FROM ComplaintMessage cm 
+        JOIN User u ON cm.idUser = u.idUser 
+        WHERE cm.idComplaint = ? 
+        ORDER BY cm.sendDate ASC
+    `;
+    connection.query(query, [complaintId], (error, results) => {
+        if (error) {
+            console.error('Erreur récupération messages:', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        res.status(200).json(results);
+    });
+});
+
+app.post('/complaint/:id/messages', (req, res) => {
+    const complaintId = req.params.id;
+    const { idUser, message } = req.body;
+    if (!idUser || !message) {
+        return res.status(400).json({ error: 'Données incomplètes' });
+    }
+    // CORRECTION ICI : INSERT INTO ... content (au lieu de message)
+    const query = "INSERT INTO ComplaintMessage (idComplaint, idUser, content) VALUES (?, ?, ?)";
+    connection.query(query, [complaintId, idUser, message], (error, results) => {
+        if (error) {
+            console.error('Erreur création message:', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        res.status(200).json({ message: 'Message ajouté', idMessage: results.insertId });
     });
 });
 

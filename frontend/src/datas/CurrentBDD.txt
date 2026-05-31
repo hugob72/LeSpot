@@ -40,15 +40,6 @@ CREATE TABLE Sale (
     dateFin DATETIME NOT NULL
 ) ENGINE = InnoDB;
 
-CREATE TABLE Complaint (
-    idComplaint INT AUTO_INCREMENT PRIMARY KEY,
-    idUser INT NOT NULL,
-    topic VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    state ENUM('ouverte', 'en_cours', 'resolue', 'fermee') DEFAULT 'ouverte',
-    FOREIGN KEY (idUser) REFERENCES `User`(idUser) ON DELETE CASCADE
-) ENGINE = InnoDB;
-
 CREATE TABLE Service (
     idService INT AUTO_INCREMENT PRIMARY KEY,
     idTypeService INT NOT NULL,
@@ -78,6 +69,17 @@ CREATE TABLE `Order` (
     date DATETIME DEFAULT CURRENT_TIMESTAMP,
     currentStatus ENUM('en_attente', 'payee', 'preparation', 'expediee', 'livree', 'annulee') DEFAULT 'en_attente',
     FOREIGN KEY (idUser) REFERENCES `User`(idUser) ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+CREATE TABLE Complaint (
+    idComplaint INT AUTO_INCREMENT PRIMARY KEY,
+    idUser INT NOT NULL,
+    idOrder INT,
+    topic VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    state ENUM('ouverte', 'en_cours', 'resolue', 'fermee') DEFAULT 'ouverte',
+    FOREIGN KEY (idUser) REFERENCES `User`(idUser) ON DELETE CASCADE,
+    FOREIGN KEY (idOrder) REFERENCES `Order`(idOrder) ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
 CREATE TABLE Surfboard (
@@ -137,6 +139,19 @@ CREATE TABLE Review (
     FOREIGN KEY (idItem) REFERENCES Item(idItem) ON DELETE CASCADE,
     FOREIGN KEY (idUser) REFERENCES `User`(idUser) ON DELETE CASCADE
 ) ENGINE = InnoDB;
+
+CREATE TABLE ComplaintMessage (
+    idMessage INT AUTO_INCREMENT PRIMARY KEY,
+    idComplaint INT NOT NULL,
+    idUser INT NOT NULL,
+    content TEXT NOT NULL,
+    sendDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (idComplaint) REFERENCES Complaint(idComplaint) ON DELETE CASCADE,
+    FOREIGN KEY (idUser) REFERENCES `User`(idUser) ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+ALTER TABLE Complaint 
+ADD COLUMN type ENUM('livraison', 'produit_defectueux', 'erreur_commande', 'remboursement', 'autre') NOT NULL AFTER topic;
 
 
 --------------------------

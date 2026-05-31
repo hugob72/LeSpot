@@ -15,6 +15,9 @@ import HomeAdmin from './pages/admin/HomeAdmin';
 import CartSummary from './pages/client/CartSummary';
 import Checkout from './pages/client/Checkout';
 import MyOrders from './pages/client/MyOrders';
+import CreateComplaint from './pages/client/CreateComplaint';
+import MyComplaints from './pages/client/MyComplaints';
+import ComplaintDetail from './pages/client/ComplaintDetail';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -46,6 +49,15 @@ root.render(
             </Route>
             <Route path="/orders">
               <MyOrders />
+            </Route>
+            <Route path="/create-complaint">
+              <CreateComplaint />
+            </Route>
+            <Route path="/complaints">
+              <MyComplaints />
+            </Route>
+            <Route path="/complaint/:id">
+              <ComplaintDetail />
             </Route>
             <Route path="/add-article">
               <AddArticle />
