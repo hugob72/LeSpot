@@ -24,13 +24,21 @@ function AddArticle() {
            fetch(`http://localhost:3001/${idArticle}`)
             .then(response => response.json())
             .then(data => {
-                // CORRECTION : On traduit les champs de la BDD pour le formulaire React
+                // CORRECTION 1 : On traduit les champs de la BDD pour le state de l'article
                 setArticle({
                     ...data,
                     leash: data.withLeash === 1,
-                    antiUV: data.isAntiUV === 1
+                    antiUV: data.isAntiUV === 1,
+                    maxWeight: data.maxSupportedWeight, // Traduction de la BDD vers le Front
+                    taille: data.size                   // Traduction de la BDD vers le Front
                 });
                 
+                // CORRECTION 2 : On met à jour le state séparé de la matière
+                if (data.material) {
+                    setMaterialWetsuit(data.material);
+                }
+
+                // Détection du type d'article
                 if (data.withLeash !== null && data.withLeash !== undefined) {
                     setTypeArticle("Planche de surf");
                 } else if (data.isAntiUV !== null && data.isAntiUV !== undefined) {

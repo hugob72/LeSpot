@@ -1,11 +1,14 @@
 a {
     text-decoration: none;
+    color: inherit;
 }
 
 .header {
     display: flex;
     align-items: center;
     background-color: #F7E7CE;
+    padding: 0 20px; /* Ajout d'un peu de padding pour ne pas coller aux bords */
+    position: relative; /* Important pour le positionnement du mini-panier */
 }
 
 .header.dark-mode {
@@ -17,22 +20,183 @@ a {
     margin-left: 20px;
 }
 
-.header ul {
+.nav-links {
     display: flex;
     color: #5a4a42;
     list-style-type: none;
-    gap: 4rem;
+    gap: 2rem; /* Réduit un peu pour faire de la place au panier */
+    margin-left: 20px;
+    padding: 0;
 }
 
-.header ul li:hover {
-    height: 100%;
+.nav-links li {
+    padding: 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.nav-links li:hover {
     background-color: #e1c9a3;
 }
 
 .logo {
-    width: 4%;
-    height: 4%;
-    margin-left: 2%;
+    width: 50px; /* Taille fixe plutôt qu'un % pour éviter les déformations */
+    height: auto;
 }
 
-/* #f4cc8c */
+/* --- ZONE DU PANIER (NOUVEAU) --- */
+
+.cart-icon-wrapper {
+    margin-left: auto; /* Pousse l'icône tout à droite du Header */
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 10px 0;
+}
+
+.cart-icon {
+    position: relative;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    color: #5a4a42;
+    transition: transform 0.2s;
+}
+
+.cart-icon:hover {
+    transform: scale(1.1);
+}
+
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background-color: #e74c3c;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: bold;
+    height: 20px;
+    min-width: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* --- MINI PANIER / VOLET COULISSANT --- */
+
+.mini-cart-dropdown {
+    position: absolute;
+    top: 100%; /* Se place juste en dessous du header */
+    right: 0;
+    width: 320px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    padding: 20px;
+    z-index: 1000;
+    border: 1px solid #eee;
+    
+    /* Animation de Slide + Fade */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(15px); /* Part légèrement d'en bas */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Classe ajoutée dynamiquement par React au survol */
+.mini-cart-dropdown.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.mini-cart-dropdown h3 {
+    margin: 0 0 15px 0;
+    font-size: 1.1rem;
+    color: #333;
+    border-bottom: 2px solid #F7E7CE;
+    padding-bottom: 10px;
+}
+
+.mini-cart-empty {
+    color: #888;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.mini-cart-items {
+    max-height: 250px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.mini-cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #f5f5f5;
+    padding-bottom: 8px;
+}
+
+.mini-cart-item-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.mini-cart-item-name {
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+}
+
+.mini-cart-item-qty {
+    color: #777;
+    font-size: 0.8rem;
+}
+
+.mini-cart-item-price {
+    font-weight: bold;
+    color: #48A3AE;
+}
+
+.mini-cart-footer {
+    border-top: 2px solid #eee;
+    padding-top: 15px;
+}
+
+.mini-cart-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.btn-view-cart {
+    width: 100%;
+    background-color: #48A3AE;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-view-cart:hover {
+    background-color: #36828b;
+}

@@ -26,7 +26,7 @@ function Cart({cartItems, setCartItems}) {
                 <p><b>Total:</b>{total}€</p>
                 <div className="area-button">
                     <button className="button" onClick={() => {setCartItems([])}}>Vider le panier</button>
-                    <button className="button" onClick={() => history.push('/cart')} style={{marginLeft: '10px'}}>Voir mon panier</button>
+                    {/* <button className="button" onClick={() => history.push('/cart')} style={{marginLeft: '10px'}}>Voir mon panier</button> */}
                 </div>
                 
             </div>
