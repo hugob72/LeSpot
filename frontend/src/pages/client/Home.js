@@ -2,11 +2,12 @@ import Header from '../../components/client/Header';
 import ShoppingList from '../../components/client/ShoppingList';
 import Cart from '../../components/client/Cart';
 import Footer from '../../components/client/Footer';
-import {useState} from 'react';
+import { useContext } from 'react';
+import { CartContext } from '../../context/CartContext';
 import '../../styles/home.css';
 
 function Home() {
-  const [cartItems, setCartItems] = useState([]);
+  const { cartItems, setCartItems } = useContext(CartContext);
   return (
     <div className="home">
       

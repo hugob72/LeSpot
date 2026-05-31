@@ -250,6 +250,138 @@ app.put('/user/:id', (req, res) => {
     );
 });
 
+app.post('/order', (req, res) => {
+    const { idUser, cartItems } = req.body;
+    
+    if (!idUser || !cartItems || cartItems.length === 0) {
+        return res.status(400).json({ error: 'Données invalides pour la commande' });
+    }
+
+    // 1. Create the order with status 'payee'
+    connection.query('INSERT INTO `Order` (idUser, currentStatus) VALUES (?, ?)', [idUser, 'payee'], (error, results) => {
+        if (error) {
+            console.error('Erreur lors de la création de la commande:', error);
+            return res.status(500).json({ error: 'Erreur lors de la création de la commande' });
+        }
+        
+        const idOrder = results.insertId;
+
+        // 2. Insert order details
+        const orderDetailsValues = cartItems.map(item => [idOrder, item.idItem, item.quantity, item.price]);
+        connection.query('INSERT INTO OrderDetail (idOrder, idItem, quantity, unitPrice) VALUES ?', [orderDetailsValues], (errorDet, resultsDet) => {
+            if (errorDet) {
+                console.error('Erreur lors de l\'insertion des détails:', errorDet);
+                return res.status(500).json({ error: 'Erreur lors de l\'enregistrement des articles de la commande' });
+            }
+
+            // 3. Insert into history
+            connection.query('INSERT INTO CommandeHistory (idOrder, status) VALUES (?, ?)', [idOrder, 'payee'], (errorHist, resultsHist) => {
+                if (errorHist) {
+                    console.error('Erreur insertion historique:', errorHist);
+                }
+                res.status(200).json({ message: 'Commande créée avec succès', idOrder: idOrder });
+            });
+        });
+    });
+});
+
+app.get('/order/user/:id', (req, res) => {
+    const idUser = req.params.id;
+    const query = `
+        SELECT o.idOrder, o.date, o.currentStatus, 
+               od.idItem, od.quantity, od.unitPrice, 
+               i.name, i.image
+        FROM \`Order\` o
+        JOIN OrderDetail od ON o.idOrder = od.idOrder
+        JOIN Item i ON od.idItem = i.idItem
+        WHERE o.idUser = ?
+        ORDER BY o.date DESC
+    `;
+    
+    connection.query(query, [idUser], (error, results) => {
+        if (error) {
+            console.error('Erreur récupération commandes:', error);
+            return res.status(500).json({ error: 'Erreur lors de la récupération des commandes' });
+        }
+        
+        // Group by order
+        const orders = {};
+        results.forEach(row => {
+            if (!orders[row.idOrder]) {
+                orders[row.idOrder] = {
+                    idOrder: row.idOrder,
+                    date: row.date,
+                    currentStatus: row.currentStatus,
+                    items: []
+                };
+            }
+            orders[row.idOrder].items.push({
+                idItem: row.idItem,
+                name: row.name,
+                image: row.image,
+                quantity: row.quantity,
+                unitPrice: row.unitPrice
+            });
+        });
+        
+        res.status(200).json(Object.values(orders));
+    });
+});
+
+app.get('/article/:id/reviews', (req, res) => {
+    const itemId = req.params.id;
+    const query = `
+        SELECT r.rating, r.comment, r.publishDate, u.firstName, u.lastName
+        FROM Review r
+        JOIN \`User\` u ON r.idUser = u.idUser
+        WHERE r.idItem = ?
+        ORDER BY r.publishDate DESC
+    `;
+    connection.query(query, [itemId], (error, results) => {
+        if (error) {
+            console.error('Erreur récupération avis:', error);
+            return res.status(500).json({ error: 'Erreur lors de la récupération des avis' });
+        }
+        res.status(200).json(results);
+    });
+});
+
+app.get('/user/:userId/hasBought/:articleId', (req, res) => {
+    const userId = req.params.userId;
+    const articleId = req.params.articleId;
+    const query = `
+        SELECT COUNT(*) as count
+        FROM \`Order\` o
+        JOIN OrderDetail od ON o.idOrder = od.idOrder
+        WHERE o.idUser = ? AND od.idItem = ?
+    `;
+    connection.query(query, [userId, articleId], (error, results) => {
+        if (error) {
+            console.error('Erreur vérification achat:', error);
+            return res.status(500).json({ error: 'Erreur lors de la vérification' });
+        }
+        res.status(200).json({ hasBought: results[0].count > 0 });
+    });
+});
+
+app.post('/article/:id/reviews', (req, res) => {
+    const itemId = req.params.id;
+    const { idUser, rating, comment } = req.body;
+    
+    if (!idUser || !rating || rating < 1 || rating > 5) {
+        return res.status(400).json({ error: 'Données invalides pour l\'avis' });
+    }
+
+    const query = 'INSERT INTO Review (idItem, idUser, rating, comment) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE rating = VALUES(rating), comment = VALUES(comment)';
+    connection.query(query, [itemId, idUser, rating, comment], (error, results) => {
+        if (error) {
+            console.error('Erreur ajout avis:', error);
+            return res.status(500).json({ error: 'Erreur lors de l\'ajout de l\'avis' });
+        }
+        res.status(200).json({ message: 'Avis ajouté avec succès' });
+    });
+});
+
 // app.use((req, res, next) => {
 //     console.log('Requête recue !');
 //     next();

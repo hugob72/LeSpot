@@ -1,0 +1,175 @@
+.my-orders-loading {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.my-orders-container {
+    display: block;
+    width: 100%;
+    margin: 40px auto;
+    min-height: 60vh;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.my-orders-title {
+    margin-bottom: 20px;
+}
+
+.my-orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.order-collapse-container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.order-collapse-header {
+    background-color: #f5f5f5;
+    padding: 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-collapse-header-left h3 {
+    margin: 0;
+}
+
+.order-collapse-date {
+    font-size: 14px;
+    color: #666;
+}
+
+.order-collapse-header-right {
+    text-align: right;
+}
+
+.order-collapse-total {
+    margin: 0;
+    font-weight: bold;
+}
+
+.order-collapse-toggle-text {
+    font-size: 14px;
+    color: #1890ff;
+}
+
+.order-collapse-content {
+    padding: 20px;
+    background-color: #fff;
+}
+
+.order-progress-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.order-progress-line {
+    position: absolute;
+    top: 15px;
+    left: 10%;
+    right: 10%;
+    height: 4px;
+    background-color: #eee;
+    z-index: 1;
+}
+
+.order-progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+    width: 25%;
+}
+
+.order-progress-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: white;
+}
+
+.order-progress-circle.completed {
+    background-color: #28a745;
+}
+
+.order-progress-circle.pending {
+    background-color: #ccc;
+}
+
+.order-progress-label {
+    font-size: 12px;
+    text-align: center;
+}
+
+.order-progress-label.completed {
+    color: #333;
+}
+
+.order-progress-label.pending {
+    color: #999;
+}
+
+.order-cancelled-msg {
+    color: red;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.order-items-title {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.order-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.order-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.order-item-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.order-item-info {
+    flex: 1;
+}
+
+.order-item-name {
+    margin: 0 0 5px 0;
+}
+
+.order-item-quantity {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.order-item-price {
+    font-weight: bold;
+}

@@ -1,12 +1,14 @@
 import Header from '../../components/client/Header';
 import Footer from '../../components/client/Footer';
 import { useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { CartContext } from '../../context/CartContext';
 import '../../styles/Detail.css';
 import '../../styles/home.css';
 
 function Detail() {
     const { idArticle } = useParams();
+    const { cartItems, setCartItems } = useContext(CartContext);
     const [article, setArticle] = useState({});
     const [image, setImage] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -17,6 +19,13 @@ function Detail() {
         image: '',
         onSale: false
     });
+    
+    // Nouveaux states pour les avis
+    const [reviews, setReviews] = useState([]);
+    const [userId, setUserId] = useState(null);
+    const [hasBought, setHasBought] = useState(false);
+    const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
+
     const unite = {
         price: '€',
         weight: 'kg',
@@ -50,6 +59,22 @@ function Detail() {
                 .catch(error => {
                     console.error('Erreur lors de la récupération de l\'article :', error);
                 });
+
+            // Fetch reviews
+            fetch(`http://localhost:3001/article/${idArticle}/reviews`)
+                .then(res => res.json())
+                .then(data => setReviews(data))
+                .catch(err => console.error('Erreur récupération avis:', err));
+
+            // Check if user is connected and has bought
+            const storedUserId = localStorage.getItem('userId');
+            if (storedUserId) {
+                setUserId(storedUserId);
+                fetch(`http://localhost:3001/user/${storedUserId}/hasBought/${idArticle}`)
+                    .then(res => res.json())
+                    .then(data => setHasBought(data.hasBought))
+                    .catch(err => console.error('Erreur vérification achat:', err));
+            }
     }, [isEditing, idArticle]);
 
     const handleInputChange = (e) => {
@@ -58,6 +83,16 @@ function Detail() {
             ...prevState,
             [name]: value 
         }));
+    };
+
+    const handleAddToCart = () => {
+        const existingItem = cartItems.find(item => item.idItem === article.idItem);
+        if (existingItem) {
+            setCartItems(cartItems.map(item => item.idItem === article.idItem ? {...item, quantity: item.quantity + 1} : item));
+        } else {
+            setCartItems([...cartItems, {...article, quantity: 1}]);
+        }
+        alert('Article ajouté au panier !');
     };
 
     const handleImageChange = (e) => {
@@ -127,6 +162,29 @@ function Detail() {
             });
     };
 
+    const handleAddReview = (e) => {
+        e.preventDefault();
+        fetch(`http://localhost:3001/article/${idArticle}/reviews`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idUser: userId, rating: newReview.rating, comment: newReview.comment })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                alert('Avis ajouté avec succès');
+                setNewReview({ rating: 5, comment: '' });
+                // Re-fetch reviews
+                fetch(`http://localhost:3001/article/${idArticle}/reviews`)
+                    .then(res => res.json())
+                    .then(data => setReviews(data));
+            }
+        })
+        .catch(err => console.error('Erreur lors de l\'ajout de l\'avis:', err));
+    };
+
     return (
     <div className="home">
         <Header />
@@ -145,7 +203,7 @@ function Detail() {
                     <div className='price'>
                         <p className="product-price">{article.price}€</p>
                         <div className='product-button-action'>
-                            <button>Ajouter au panier</button>
+                            <button onClick={handleAddToCart}>Ajouter au panier</button>
                             <button>Favori</button>
                         </div>
                     </div>
@@ -167,6 +225,54 @@ function Detail() {
                         </table>
                     </div>
          
+                </div>
+            </div>
+
+            <div className="reviews-section">
+                <h2>Avis des clients</h2>
+                
+                {hasBought && (
+                    <form className="add-review-form" onSubmit={handleAddReview}>
+                        <h3>Ajouter un avis</h3>
+                        <div className="form-group">
+                            <label>Note :</label>
+                            <select 
+                                value={newReview.rating} 
+                                onChange={(e) => setNewReview({...newReview, rating: parseInt(e.target.value)})}
+                            >
+                                {[5, 4, 3, 2, 1].map(num => (
+                                    <option key={num} value={num}>{num} étoiles</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="form-group">
+                            <label>Commentaire :</label>
+                            <textarea 
+                                value={newReview.comment} 
+                                onChange={(e) => setNewReview({...newReview, comment: e.target.value})} 
+                                required 
+                                rows="4"
+                            />
+                        </div>
+                        <button type="submit" className="button btn-save">Publier l'avis</button>
+                    </form>
+                )}
+                
+                <div className="reviews-list">
+                    {reviews.length > 0 ? (
+                        reviews.map((review, index) => (
+                            <div key={index} className="review-item">
+                                <div className="review-header">
+                                    <span className="review-author">{review.firstName} {review.lastName}</span>
+                                    <span className="review-rating">{'⭐'.repeat(review.rating)}</span>
+                                </div>
+                                <p className="review-comment">{review.comment}</p>
+                                <span className="review-date">{new Date(review.publishDate).toLocaleDateString()}</span>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="no-reviews">Aucun avis pour cet article pour le moment.</p>
+                    )}
                 </div>
             </div>
         </main>

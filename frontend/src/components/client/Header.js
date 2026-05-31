@@ -13,6 +13,7 @@ function Header() {
                 <li><Link to="/">Accueil</Link></li>
                 <li><Link to="/preferences">Préférences</Link></li>
                 <li><Link to="/login">Connexion</Link></li>
+                <li><Link to="/orders">Mes commandes</Link></li>
                 <li>Contact</li>
                 <li><Link to="/add-article">Ajout article</Link></li>
                 <li><Link to="/admin">Admin</Link></li>

@@ -1,6 +1,8 @@
+import { useHistory } from 'react-router-dom';
 import '../../styles/cart.css';
 
 function Cart({cartItems, setCartItems}) {
+    const history = useHistory();
     const item1 = 15;
     const item2 = 20;
 
@@ -12,8 +14,8 @@ function Cart({cartItems, setCartItems}) {
     return (
         <div className="cart">
             <h1>Cart</h1>
-            {cartItems.map((item) => (
-                <div className="cart-item">
+            {cartItems.map((item, index) => (
+                <div className="cart-item" key={index}>
                     <p>{item.name} : </p>
                     <p>{item.price}€</p>
                     <p>QTE : {item.quantity}</p>
@@ -24,6 +26,7 @@ function Cart({cartItems, setCartItems}) {
                 <p><b>Total:</b>{total}€</p>
                 <div className="area-button">
                     <button className="button" onClick={() => {setCartItems([])}}>Vider le panier</button>
+                    <button className="button" onClick={() => history.push('/cart')} style={{marginLeft: '10px'}}>Voir mon panier</button>
                 </div>
                 
             </div>

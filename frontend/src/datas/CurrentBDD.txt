@@ -127,6 +127,17 @@ CREATE TABLE CommandeHistory (
     FOREIGN KEY (idOrder) REFERENCES `Order`(idOrder) ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
+CREATE TABLE Review (
+    idItem INT NOT NULL,
+    idUser INT NOT NULL,
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment TEXT,
+    publishDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (idItem, idUser),
+    FOREIGN KEY (idItem) REFERENCES Item(idItem) ON DELETE CASCADE,
+    FOREIGN KEY (idUser) REFERENCES `User`(idUser) ON DELETE CASCADE
+) ENGINE = InnoDB;
+
 
 --------------------------
 --- Insertion des données

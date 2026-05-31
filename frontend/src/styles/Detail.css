@@ -133,3 +133,99 @@ h1 {
 .button:hover {
     opacity: 0.9;
 }
+
+/* Section Avis Clients */
+.reviews-section {
+    width: 100%;
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 2px solid #F2F2F2;
+}
+
+.reviews-section h2 {
+    margin-bottom: 30px;
+    color: #333;
+}
+
+.add-review-form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 40px;
+}
+
+.add-review-form h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+}
+
+.add-review-form .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.add-review-form label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.add-review-form select,
+.add-review-form textarea {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.add-review-form textarea {
+    resize: vertical;
+}
+
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.review-item {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.review-author {
+    font-weight: bold;
+    color: #333;
+}
+
+.review-rating {
+    color: #f39c12;
+    font-size: 1.1rem;
+}
+
+.review-comment {
+    margin-bottom: 15px;
+    line-height: 1.5;
+    color: #555;
+}
+
+.review-date {
+    font-size: 0.85rem;
+    color: #999;
+}
+
+.no-reviews {
+    color: #777;
+    font-style: italic;
+}
