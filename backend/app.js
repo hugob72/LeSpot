@@ -257,7 +257,11 @@ app.post('/order', (req, res, next) => {
         return res.status(400).json({ error: 'Données invalides pour la commande' });
     }
 
-    // 1. Create the order with status 'payee'
+    // On trie le panier grâce au flag `isService`
+    const physicalItems = cartItems.filter(item => !item.isService);
+    const serviceItems = cartItems.filter(item => item.isService);
+
+    // 1. Création de la commande globale
     connection.query('INSERT INTO `Order` (idUser, currentStatus) VALUES (?, ?)', [idUser, 'payee'], (error, results) => {
         if (error) {
             console.error('Erreur lors de la création de la commande:', error);
@@ -266,21 +270,177 @@ app.post('/order', (req, res, next) => {
         
         const idOrder = results.insertId;
 
-        // 2. Insert order details
-        const orderDetailsValues = cartItems.map(item => [idOrder, item.idItem, item.quantity, item.price]);
-        connection.query('INSERT INTO OrderDetail (idOrder, idItem, quantity, unitPrice) VALUES ?', [orderDetailsValues], (errorDet, resultsDet) => {
-            if (errorDet) {
-                console.error('Erreur lors de l\'insertion des détails:', errorDet);
-                return res.status(500).json({ error: 'Erreur lors de l\'enregistrement des articles de la commande' });
-            }
-
-            // 3. Insert into history
-            connection.query('INSERT INTO CommandeHistory (idOrder, status) VALUES (?, ?)', [idOrder, 'payee'], (errorHist, resultsHist) => {
-                if (errorHist) {
-                    console.error('Erreur insertion historique:', errorHist);
-                }
-                res.status(200).json({ message: 'Commande créée avec succès', idOrder: idOrder });
+        // 2. Insérer les articles physiques dans OrderDetail
+        if (physicalItems.length > 0) {
+            const orderDetailsValues = physicalItems.map(item => [idOrder, item.idItem, item.quantity, item.price]);
+            connection.query('INSERT INTO OrderDetail (idOrder, idItem, quantity, unitPrice) VALUES ?', [orderDetailsValues], (errorDet) => {
+                if (errorDet) console.error('Erreur insertion détails physiques:', errorDet);
             });
+        }
+
+        // 3. Insérer les réservations de service dans Participation
+        if (serviceItems.length > 0) {
+            const participationValues = serviceItems.map(item => [idUser, item.idService]);
+            // On utilise INSERT IGNORE pour éviter un crash si l'utilisateur a déjà réservé ce créneau par erreur
+            connection.query('INSERT IGNORE INTO Participation (idUser, idService) VALUES ?', [participationValues], (errorPart) => {
+                if (errorPart) console.error('Erreur insertion participation:', errorPart);
+            });
+        }
+
+        // 4. Historique de la commande
+        connection.query('INSERT INTO CommandeHistory (idOrder, status) VALUES (?, ?)', [idOrder, 'payee'], (errorHist) => {
+            if (errorHist) console.error('Erreur insertion historique:', errorHist);
+        });
+        
+        // On renvoie le succès immédiatement (les requêtes enfants tournent en asynchrone)
+        res.status(200).json({ message: 'Commande créée avec succès', idOrder: idOrder });
+    });
+});
+
+// --- Récupérer les réservations d'un utilisateur ---
+app.get('/user/:id/bookings', (req, res) => {
+    const userId = req.params.id;
+    const query = `
+        SELECT s.idService, s.date, s.heure, s.duree, 
+               ts.name, ts.image 
+        FROM Participation p
+        JOIN Service s ON p.idService = s.idService
+        JOIN TypeService ts ON s.idTypeService = ts.idTypeService
+        WHERE p.idUser = ?
+        ORDER BY s.date DESC, s.heure DESC
+    `;
+    
+    connection.query(query, [userId], (error, results) => {
+        if (error) {
+            console.error('Erreur lors de la récupération des réservations :', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        res.status(200).json(results);
+    });
+});
+
+// ==========================================
+// --- ADMINISTRATION DES SERVICES & RÉSERVATIONS ---
+// ==========================================
+
+// 1. Récupérer tous les créneaux (avec le nombre d'inscrits)
+app.get('/admin/services', (req, res) => {
+    const query = `
+        SELECT s.idService, s.date, s.heure, s.duree, s.price, s.numberParticipants,
+               ts.name AS typeName, ts.idTypeService,
+               (SELECT COUNT(*) FROM Participation p WHERE p.idService = s.idService) AS inscrits
+        FROM Service s
+        JOIN TypeService ts ON s.idTypeService = ts.idTypeService
+        ORDER BY s.date DESC, s.heure DESC
+    `;
+    connection.query(query, (error, results) => {
+        if (error) return res.status(500).json({ error: 'Erreur serveur' });
+        res.status(200).json(results);
+    });
+});
+
+// 2. Ajouter un nouveau créneau
+app.post('/admin/services', (req, res) => {
+    const { idTypeService, date, heure, duree, price, numberParticipants } = req.body;
+    
+    // On récupère le nom du service pour remplir le champ 'title' obligatoire dans ta BDD
+    connection.query('SELECT name FROM TypeService WHERE idTypeService = ?', [idTypeService], (err, tsRes) => {
+        if (err || tsRes.length === 0) return res.status(400).json({ error: 'Type de service invalide' });
+        
+        const title = `Session ${tsRes[0].name}`;
+        const query = "INSERT INTO Service (idTypeService, title, date, heure, duree, price, numberParticipants) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        
+        connection.query(query, [idTypeService, title, date, heure, duree, price, numberParticipants], (error, results) => {
+            if (error) {
+                console.error("Erreur création créneau:", error);
+                return res.status(500).json({ error: 'Erreur lors de la création' });
+            }
+            res.status(200).json({ message: 'Créneau ajouté', idService: results.insertId });
+        });
+    });
+});
+
+// 3. Supprimer un créneau
+app.delete('/admin/services/:id', (req, res) => {
+    const query = "DELETE FROM Service WHERE idService = ?";
+    connection.query(query, [req.params.id], (error) => {
+        if (error) return res.status(500).json({ error: 'Erreur lors de la suppression' });
+        res.status(200).json({ message: 'Créneau supprimé' });
+    });
+});
+
+// 4. Voir les clients inscrits à un créneau (Réservations)
+app.get('/admin/services/:id/participants', (req, res) => {
+    const query = `
+        SELECT u.idUser, u.firstName, u.lastName, u.email, u.phoneNumber 
+        FROM Participation p
+        JOIN User u ON p.idUser = u.idUser
+        WHERE p.idService = ?
+    `;
+    connection.query(query, [req.params.id], (error, results) => {
+        if (error) return res.status(500).json({ error: 'Erreur serveur' });
+        res.status(200).json(results);
+    });
+});
+
+// --- Ajouter une nouvelle prestation au catalogue ---
+app.post('/catalog/services', (req, res) => {
+    const { name, description, image, defaultDuration, basePrice } = req.body;
+    
+    if (!name || !description || !image || !defaultDuration || !basePrice) {
+        return res.status(400).json({ error: 'Toutes les informations sont requises' });
+    }
+
+    const query = "INSERT INTO TypeService (name, description, image, defaultDuration, basePrice) VALUES (?, ?, ?, ?, ?)";
+    connection.query(query, [name, description, image, defaultDuration, basePrice], (error, results) => {
+        if (error) {
+            console.error('Erreur création prestation:', error);
+            return res.status(500).json({ error: 'Erreur serveur lors de la création' });
+        }
+        res.status(200).json({ message: 'Prestation créée avec succès', idTypeService: results.insertId });
+    });
+});
+
+// --- Modifier une prestation existante ---
+app.put('/catalog/services/:id', (req, res) => {
+    const idTypeService = req.params.id;
+    const { name, description, image, defaultDuration, basePrice } = req.body;
+
+    const query = "UPDATE TypeService SET name = ?, description = ?, image = ?, defaultDuration = ?, basePrice = ? WHERE idTypeService = ?";
+    connection.query(query, [name, description, image, defaultDuration, basePrice, idTypeService], (error, results) => {
+        if (error) {
+            console.error('Erreur modification prestation:', error);
+            return res.status(500).json({ error: 'Erreur serveur lors de la modification' });
+        }
+        res.status(200).json({ message: 'Prestation modifiée avec succès' });
+    });
+});
+
+// --- Récupérer un seul créneau (Pour pré-remplir le formulaire de modification) ---
+app.get('/admin/services/:id', (req, res) => {
+    const query = "SELECT * FROM Service WHERE idService = ?";
+    connection.query(query, [req.params.id], (error, results) => {
+        if (error) return res.status(500).json({ error: 'Erreur serveur' });
+        if (results.length > 0) res.status(200).json(results[0]);
+        else res.status(404).json({ error: 'Créneau introuvable' });
+    });
+});
+
+// --- Modifier un créneau existant ---
+app.put('/admin/services/:id', (req, res) => {
+    const idService = req.params.id;
+    const { idTypeService, date, heure, duree, price, numberParticipants } = req.body;
+    
+    // On met à jour avec le nom du type de service
+    connection.query('SELECT name FROM TypeService WHERE idTypeService = ?', [idTypeService], (err, tsRes) => {
+        if (err || tsRes.length === 0) return res.status(400).json({ error: 'Type de service invalide' });
+        
+        const title = `Session ${tsRes[0].name}`;
+        const query = "UPDATE Service SET idTypeService = ?, title = ?, date = ?, heure = ?, duree = ?, price = ?, numberParticipants = ? WHERE idService = ?";
+        
+        connection.query(query, [idTypeService, title, date, heure, duree, price, numberParticipants, idService], (error, results) => {
+            if (error) return res.status(500).json({ error: 'Erreur lors de la modification' });
+            res.status(200).json({ message: 'Créneau modifié avec succès' });
         });
     });
 });
@@ -627,6 +787,65 @@ app.post('/complaint/:id/messages', (req, res, next) => {
         res.status(200).json({ message: 'Message ajouté', idMessage: results.insertId });
     });
 });
+
+
+// ==========================================
+// --- GESTION DES PRESTATIONS (SERVICES) ---
+// ==========================================
+
+// 1. Récupérer le catalogue des prestations (TypeService)
+app.get('/catalog/services', (req, res) => {
+    const query = "SELECT * FROM TypeService ORDER BY basePrice ASC";
+    
+    connection.query(query, (error, results) => {
+        if (error) {
+            console.error('Erreur récupération du catalogue de services :', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        res.status(200).json(results);
+    });
+});
+
+// 2. Récupérer les détails d'une prestation spécifique
+app.get('/catalog/services/:id', (req, res) => {
+    const serviceId = req.params.id;
+    const query = "SELECT * FROM TypeService WHERE idTypeService = ?";
+    
+    connection.query(query, [serviceId], (error, results) => {
+        if (error) {
+            console.error('Erreur récupération détail service :', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        if (results.length > 0) {
+            res.status(200).json(results[0]);
+        } else {
+            res.status(404).json({ error: 'Prestation introuvable' });
+        }
+    });
+});
+
+// 3. Récupérer les créneaux DISPONIBLES (Agenda) pour une prestation donnée
+app.get('/catalog/services/:id/slots', (req, res) => {
+    const serviceId = req.params.id;
+    // On récupère les sessions futures dont le nombre de participants n'est pas encore plein
+    // Note : Pour l'instant on prend juste les sessions futures. La vérification du "complet" se fera via la table Participation.
+    const query = `
+        SELECT s.*, 
+               (s.numberParticipants - (SELECT COUNT(*) FROM Participation p WHERE p.idService = s.idService)) AS placesRestantes
+        FROM Service s
+        WHERE s.idTypeService = ? AND s.date >= CURDATE()
+        ORDER BY s.date ASC, s.heure ASC
+    `;
+    
+    connection.query(query, [serviceId], (error, results) => {
+        if (error) {
+            console.error('Erreur récupération des créneaux :', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        res.status(200).json(results);
+    });
+});
+
 
 app.get('/', (req, res, next) => {
     const query = `

@@ -18,6 +18,11 @@ import MyOrders from './pages/client/MyOrders';
 import CreateComplaint from './pages/client/CreateComplaint';
 import MyComplaints from './pages/client/MyComplaints';
 import ComplaintDetail from './pages/client/ComplaintDetail';
+import Service from './pages/client/Service';
+import ServiceDetail from './pages/client/ServiceDetail';
+import MyBookings from './pages/client/MyBookings';
+
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -28,6 +33,15 @@ root.render(
           <Switch>
             <Route exact path="/">
               <Home />
+            </Route>
+            <Route path="/services">
+              <Service />
+            </Route>
+            <Route path="/service/:id">
+              <ServiceDetail />
+            </Route>
+            <Route path="/bookings">
+              <MyBookings />
             </Route>
             <Route path="/detail/:idArticle">
               <Detail />

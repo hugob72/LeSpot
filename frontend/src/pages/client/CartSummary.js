@@ -10,30 +10,31 @@ function CartSummary() {
     const { cartItems, setCartItems } = useContext(CartContext);
     const history = useHistory();
 
-    const updateQuantity = (idItem, value) => {
+    const updateQuantity = (itemIndex, value) => {
         if (value === '') {
-            setCartItems(cartItems.map(item => 
-                item.idItem === idItem ? { ...item, quantity: '' } : item
-            ));
+            const newItems = [...cartItems];
+            newItems[itemIndex].quantity = '';
+            setCartItems(newItems);
             return;
         }
         
         const newQuantity = parseInt(value, 10);
         if (!isNaN(newQuantity) && newQuantity >= 0) {
-            setCartItems(cartItems.map(item => 
-                item.idItem === idItem ? { ...item, quantity: newQuantity } : item
-            ));
+            const newItems = [...cartItems];
+            newItems[itemIndex].quantity = newQuantity;
+            setCartItems(newItems);
         }
     };
 
-    const handleBlur = (idItem, quantity) => {
+    const handleBlur = (itemIndex, quantity) => {
         if (quantity === '' || quantity <= 0) {
-            removeItem(idItem);
+            removeItem(itemIndex);
         }
     };
 
-    const removeItem = (idItem) => {
-        setCartItems(cartItems.filter(item => item.idItem !== idItem));
+    // Suppression basée sur l'index (plus sûr pour mélanger idItem et idService)
+    const removeItem = (indexToRemove) => {
+        setCartItems(cartItems.filter((_, index) => index !== indexToRemove));
     };
 
     const total = cartItems.reduce((acc, item) => acc + item.price * (parseInt(item.quantity) || 0), 0);
@@ -55,6 +56,8 @@ function CartSummary() {
                                     <div>
                                         <h3>{item.name}</h3>
                                         <p>{item.price} €</p>
+                                        {/* Petit badge visuel pour différencier */}
+                                        {item.isService && <span style={{fontSize:'0.8rem', backgroundColor:'#e0f2f1', padding:'3px 8px', borderRadius:'10px', color:'#00796b'}}>🗓️ Réservation</span>}
                                     </div>
                                 </div>
                                 <div className="cart-summary-item-controls">
@@ -64,13 +67,15 @@ function CartSummary() {
                                             type="number" 
                                             min="0" 
                                             value={item.quantity} 
-                                            onChange={(e) => updateQuantity(item.idItem, e.target.value)}
-                                            onBlur={() => handleBlur(item.idItem, item.quantity)}
+                                            onChange={(e) => updateQuantity(index, e.target.value)}
+                                            onBlur={() => handleBlur(index, item.quantity)}
                                             className="cart-summary-input"
+                                            disabled={item.isService} // On bloque la quantité pour les services
+                                            title={item.isService ? "La quantité d'une réservation est fixe" : ""}
                                         />
                                     </div>
                                     <button 
-                                        onClick={() => removeItem(item.idItem)}
+                                        onClick={() => removeItem(index)}
                                         className="cart-summary-delete-btn"
                                     >
                                         Supprimer

@@ -18,9 +18,11 @@ function Header() {
             <img src={Logo} alt="Logo" className="logo" />
             <ul className="nav-links">
                 <li><Link to="/">Accueil</Link></li>
+                <li><Link to="/services">Nos services</Link></li>
                 <li><Link to="/preferences">Préférences</Link></li>
                 <li><Link to="/login">Connexion</Link></li>
                 <li><Link to="/orders">Mes commandes</Link></li>
+                <li><Link to="/bookings">Mes réservations</Link></li>
                 <li><Link to="/complaints">Mes réclamations</Link></li>
                 <li><Link to="/contact">Contact</Link></li>
                 <li><Link to="/add-article">Ajout article</Link></li>

@@ -1,0 +1,213 @@
+.service-detail-wrapper {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* --- HERO SECTION (Présentation) --- */
+.service-hero {
+    display: flex;
+    gap: 40px;
+    background-color: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    margin-bottom: 50px;
+}
+
+.service-hero-img {
+    width: 400px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.service-hero-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.service-hero-content h1 {
+    font-size: 2.5rem;
+    color: #111827;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.service-desc {
+    font-size: 1.1rem;
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.service-badges {
+    display: flex;
+    gap: 15px;
+}
+
+.badge {
+    background-color: #f3f4f6;
+    color: #374151;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* --- BOOKING SECTION (Calendrier + Créneaux) --- */
+.booking-section h2 {
+    color: #111827;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+}
+
+.booking-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    align-items: start;
+}
+
+/* Customisation de React-Calendar (Style Untitled UI) */
+.custom-calendar {
+    width: 100% !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 16px !important;
+    padding: 20px !important;
+    font-family: inherit !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02) !important;
+}
+
+.react-calendar__navigation button {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #111827;
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+    background-color: #f3f4f6;
+    border-radius: 8px;
+}
+
+.react-calendar__month-view__weekdays {
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #6b7280;
+    font-size: 0.8rem;
+    abbr { text-decoration: none; }
+}
+
+.react-calendar__tile {
+    padding: 15px 10px !important;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+    background-color: #f3f4f6 !important;
+}
+
+/* Jour sélectionné */
+.react-calendar__tile--active {
+    background-color: #48A3AE !important; /* Ta couleur principale */
+    color: white !important;
+    font-weight: bold;
+    border-radius: 8px;
+}
+
+/* --- CRÉNEAUX (Droite) --- */
+.slots-container h3 {
+    margin-top: 0;
+    color: #374151;
+    font-size: 1.2rem;
+}
+
+.no-slots {
+    background-color: #f9fafb;
+    padding: 20px;
+    text-align: center;
+    border-radius: 8px;
+    color: #6b7280;
+    font-style: italic;
+}
+
+.slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.slot-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    background-color: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.slot-btn:hover:not(:disabled) {
+    border-color: #48A3AE;
+    background-color: #f0f9fa;
+}
+
+.slot-btn.selected {
+    border-color: #48A3AE;
+    background-color: #48A3AE;
+    color: white;
+}
+
+.slot-btn.selected .slot-places {
+    color: #e0f2f1;
+}
+
+.slot-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f3f4f6;
+}
+
+.slot-time {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.slot-places {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+/* --- ACTION DE RÉSERVATION --- */
+.booking-action {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.btn-confirm-booking {
+    width: 100%;
+    padding: 15px;
+    background-color: #10b981; /* Vert validation */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-confirm-booking:hover {
+    background-color: #059669;
+}

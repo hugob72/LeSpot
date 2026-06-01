@@ -9,6 +9,9 @@ import AdminCommandeDetails from '../../components/admin/AdminCommandeDetails';
 import AdminComplaints from '../../components/admin/AdminComplaints';
 import AdminComplaintDetail from '../../components/admin/AdminComplaintDetail';
 import AdminUsers from '../../components/admin/AdminUser';
+import AdminServices from '../../components/admin/AdminServices';
+import AddService from '../../components/admin/AddService';
+
 
 
 function HomeAdmin() {
@@ -23,7 +26,7 @@ function HomeAdmin() {
                     <Link to="/admin/dashboard" className="admin-menu-item">Dashboard</Link>
                     <Link to="/admin/stock" className="admin-menu-item">Articles</Link>
                     <Link to="/admin/commandes" className="admin-menu-item">Commandes</Link>
-                    <Link to="/admin/dashboard" className="admin-menu-item">Services & Cours</Link>
+                    <Link to="/admin/services" className="admin-menu-item">Services & Cours</Link>
                     <Link to="/admin/litiges" className="admin-menu-item">Litiges</Link>
                     <Link to="/admin/users" className="admin-menu-item">Comptes</Link>
                 </ul>
@@ -56,6 +59,16 @@ function HomeAdmin() {
                             </Route>
                             <Route path="/admin/commandes/:idOrder">
                                 <AdminCommandeDetails />
+                            </Route>
+                            <Route path="/admin/services">
+                                <AdminServices />
+                            </Route>
+                            {/* --- NOUVELLES ROUTES pour le formulaire Service --- */}
+                            <Route exact path="/admin/add-service">
+                                <AddService />
+                            </Route>
+                            <Route path="/admin/add-service/:idService">
+                                <AddService />
                             </Route>
                             <Route exact path="/admin/litiges">
                                 <AdminComplaints />
