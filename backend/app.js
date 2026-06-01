@@ -169,6 +169,50 @@ app.post('/login', (req, res, next) => {
     });
 });
 
+app.get('/user', (req, res) => {
+    const query = "SELECT idUser, firstName, lastName, email, phoneNumber, role FROM User ORDER BY idUser DESC";
+    connection.query(query, (error, results) => {
+        if (error) {
+            console.error('Erreur récupération utilisateurs:', error);
+            return res.status(500).json({ error: 'Erreur lors de la récupération des comptes' });
+        }
+        res.status(200).json(results);
+    });
+});
+
+// 2. Modifier le rôle d'un utilisateur (Client <-> Admin)
+app.put('/user/:id/role', (req, res) => {
+    const userId = req.params.id;
+    const { role } = req.body;
+
+    if (role !== 'client' && role !== 'admin') {
+        return res.status(400).json({ error: 'Rôle invalide' });
+    }
+
+    const query = "UPDATE User SET role = ? WHERE idUser = ?";
+    connection.query(query, [role, userId], (error, results) => {
+        if (error) {
+            console.error('Erreur mise à jour rôle:', error);
+            return res.status(500).json({ error: 'Erreur lors de la mise à jour du rôle' });
+        }
+        res.status(200).json({ message: 'Rôle mis à jour avec succès' });
+    });
+});
+
+// 3. Supprimer un utilisateur
+app.delete('/user/:id', (req, res) => {
+    const userId = req.params.id;
+    
+    const query = "DELETE FROM User WHERE idUser = ?";
+    connection.query(query, [userId], (error, results) => {
+        if (error) {
+            console.error('Erreur suppression utilisateur:', error);
+            return res.status(500).json({ error: 'Erreur lors de la suppression du compte' });
+        }
+        res.status(200).json({ message: 'Utilisateur supprimé avec succès' });
+    });
+});
+
 app.get('/user/:id', (req, res, next) => {
     const userId = req.params.id;
     connection.query('SELECT idUser, firstName, lastName, phoneNumber, email, role, address, postalCode, city, country, paymentPreference FROM User WHERE idUser = ?', [userId], (error, results) => {
@@ -494,7 +538,7 @@ app.get('/complaint', (req, res, next) => {
         JOIN User u ON c.idUser = u.idUser 
         ORDER BY c.idComplaint DESC
     `;
-    
+
     connection.query(query, (error, results) => {
         if (error) {
             console.error('Erreur récupération des réclamations:', error);
