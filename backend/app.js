@@ -33,120 +33,6 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use('/images', express.static('images'));
 
-app.get('/', (req, res, next) => {
-    const query = `
-        SELECT i.*, 
-               CASE 
-                   WHEN s.idSurfboard IS NOT NULL THEN 'board' 
-                   WHEN w.idWetsuit IS NOT NULL THEN 'wetsuit' 
-                   ELSE 'autre' 
-               END as itemType
-        FROM Item i
-        LEFT JOIN Surfboard s ON i.idItem = s.idSurfboard
-        LEFT JOIN Wetsuit w ON i.idItem = w.idWetsuit
-    `;
-
-    connection.query(query, (error, results) => {
-        if (error) {
-            console.error('Erreur lors de la requête SQL :', error);
-            res.status(500).json({ error: 'Erreur lors de la récupération des données' });
-        } else {
-            res.status(200).json(results);
-        }
-    });
-});
-
-app.get('/:id', (req, res, next) => {
-    const itemId = req.params.id;
-    connection.query('SELECT i.*, s.*, w.* FROM Item i LEFT JOIN Surfboard s ON i.idItem = s.idSurfboard LEFT JOIN Wetsuit w ON i.idItem = w.idWetsuit WHERE i.idItem = ? ', [itemId], (error, results) => {
-        if (error) {
-            console.error('Erreur lors de la requête SQL :', error);
-            res.status(500).json({ error: 'Erreur lors de la récupération des données' });
-        } else {
-            if (results.length > 0) {
-                res.status(200).json(results[0]);
-            } else {
-                res.status(404).json({ error: 'Aucun article trouvé avec cet ID' });
-            }
-        }
-    });
-});
-
-app.put('/:id', (req, res, next) => {
-    const itemId = req.params.id;
-    
-    // 1. On extrait toutes les données envoyées par le Frontend
-    const { 
-        // Données communes
-        name, price, description, amount, image, 
-        // Données Surfboard
-        weight, volume, maxWeight, stability, maneuverability, leash,
-        // Données Wetsuit
-        taille, material, tempMin, tempMax, antiUV 
-    } = req.body;
-
-    // 2. On prépare l'objet pour la table Item (seulement les colonnes qui existent dans Item)
-    const itemToUpdate = {
-        name,
-        price,
-        description,
-        amount,
-        image
-    };
-
-    // 3. Première requête : Mise à jour de la table de base (Item)
-    connection.query('UPDATE Item SET ? WHERE idItem = ?', [itemToUpdate, itemId], (error, results) => {
-        if (error) {
-            console.error('Erreur lors de la mise à jour de Item :', error);
-            return res.status(500).json({ error: 'Erreur lors de la mise à jour des données de base' });
-        } 
-        
-        if (results.affectedRows === 0) {
-            return res.status(404).json({ error: 'Aucun article trouvé avec cet ID' });
-        }
-
-        // 4. Deuxième requête : Mise à jour de la table enfant
-        // -- Si on détecte des caractéristiques de Planche de surf --
-        if (stability && maneuverability && weight && volume && maxWeight) {
-            const isLeash = (leash === true || leash === 'true' || leash === 1) ? 1 : 0;
-            const querySurfboard = `
-                UPDATE Surfboard 
-                SET stability = ?, maneuverability = ?, weight = ?, volume = ?, maxSupportedWeight = ?, withLeash = ? 
-                WHERE idSurfboard = ?
-            `;
-            
-            connection.query(querySurfboard, [stability, maneuverability, weight, volume, maxWeight, isLeash, itemId], (errSurf, resSurf) => {
-                if (errSurf) {
-                    console.error('Erreur mise à jour Surfboard :', errSurf);
-                    return res.status(500).json({ error: 'Erreur mise à jour de la planche' });
-                }
-                return res.status(200).json({ message: 'Planche de surf modifiée avec succès' });
-            });
-
-        // -- Si on détecte des caractéristiques de Combinaison --
-        } else if (taille && material && tempMin && tempMax) {
-            const isUV = (antiUV === true || antiUV === 'true' || antiUV === 'on' || antiUV === 1) ? 1 : 0;
-            const queryWetsuit = `
-                UPDATE Wetsuit 
-                SET size = ?, material = ?, tempMin = ?, tempMax = ?, isAntiUV = ? 
-                WHERE idWetsuit = ?
-            `;
-
-            connection.query(queryWetsuit, [taille, material, tempMin, tempMax, isUV, itemId], (errWet, resWet) => {
-                if (errWet) {
-                    console.error('Erreur mise à jour Wetsuit :', errWet);
-                    return res.status(500).json({ error: 'Erreur mise à jour de la combinaison' });
-                }
-                return res.status(200).json({ message: 'Combinaison modifiée avec succès' });
-            });
-            
-        // -- S'il n'y a pas de caractéristiques spécifiques (Sécurité) --
-        } else {
-            return res.status(200).json({ message: 'Article de base modifié avec succès' });
-        }
-    });
-});
-
 app.post('/upload', upload.single('image'), (req, res) => {
     if (req.file) {
         const imageUrl = `http://localhost:3001/images/${req.file.filename}`;
@@ -283,7 +169,7 @@ app.post('/login', (req, res, next) => {
     });
 });
 
-app.get('/user/:id', (req, res) => {
+app.get('/user/:id', (req, res, next) => {
     const userId = req.params.id;
     connection.query('SELECT idUser, firstName, lastName, phoneNumber, email, role, address, postalCode, city, country, paymentPreference FROM User WHERE idUser = ?', [userId], (error, results) => {
         if (error) {
@@ -299,7 +185,7 @@ app.get('/user/:id', (req, res) => {
     });
 });
 
-app.put('/user/:id', (req, res) => {
+app.put('/user/:id', (req, res, next) => {
     const userId = req.params.id;
     const { firstName, lastName, phoneNumber, address, postalCode, city, country, paymentPreference } = req.body;
     connection.query(
@@ -320,7 +206,7 @@ app.put('/user/:id', (req, res) => {
     );
 });
 
-app.post('/order', (req, res) => {
+app.post('/order', (req, res, next) => {
     const { idUser, cartItems } = req.body;
     
     if (!idUser || !cartItems || cartItems.length === 0) {
@@ -355,7 +241,136 @@ app.post('/order', (req, res) => {
     });
 });
 
-app.get('/order/user/:id', (req, res) => {
+app.get('/order', (req, res, next) => {
+    const query = `
+        SELECT o.idOrder, o.date, o.currentStatus, 
+               u.firstName, u.lastName, u.email,
+               od.idItem, od.quantity, od.unitPrice, 
+               i.name, i.image
+        FROM \`Order\` o
+        JOIN User u ON o.idUser = u.idUser
+        JOIN OrderDetail od ON o.idOrder = od.idOrder
+        JOIN Item i ON od.idItem = i.idItem
+        ORDER BY o.date DESC
+    `;
+    
+    connection.query(query, (error, results) => {
+        if (error) {
+            console.error('Erreur récupération commandes (admin):', error);
+            return res.status(500).json({ error: 'Erreur lors de la récupération des commandes' });
+        }
+        
+        // Group by order
+        const orders = {};
+        results.forEach(row => {
+            if (!orders[row.idOrder]) {
+                orders[row.idOrder] = {
+                    idOrder: row.idOrder,
+                    date: row.date,
+                    currentStatus: row.currentStatus,
+                    firstName: row.firstName,
+                    lastName: row.lastName,
+                    email: row.email,
+                    items: [],
+                    totalPrice: 0
+                };
+            }
+            orders[row.idOrder].items.push({
+                idItem: row.idItem,
+                name: row.name,
+                image: row.image,
+                quantity: row.quantity,
+                unitPrice: row.unitPrice
+            });
+            orders[row.idOrder].totalPrice += (row.quantity * row.unitPrice);
+        });
+        
+        res.status(200).json(Object.values(orders));
+    });
+});
+
+app.get('/order/:id', (req, res, next) => {
+    const orderId = req.params.id;
+    const query = `
+        SELECT o.idOrder, o.date, o.currentStatus, 
+               u.firstName, u.lastName, u.email, u.phoneNumber, u.address, u.postalCode, u.city, u.country,
+               od.idItem, od.quantity, od.unitPrice, 
+               i.name, i.image
+        FROM \`Order\` o
+        JOIN User u ON o.idUser = u.idUser
+        JOIN OrderDetail od ON o.idOrder = od.idOrder
+        JOIN Item i ON od.idItem = i.idItem
+        WHERE o.idOrder = ?
+    `;
+    
+    connection.query(query, [orderId], (error, results) => {
+        if (error) {
+            console.error('Erreur récupération commande (admin):', error);
+            return res.status(500).json({ error: 'Erreur lors de la récupération de la commande' });
+        }
+        
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Commande introuvable' });
+        }
+        
+        // Group by order
+        const order = {
+            idOrder: results[0].idOrder,
+            date: results[0].date,
+            currentStatus: results[0].currentStatus,
+            user: {
+                firstName: results[0].firstName,
+                lastName: results[0].lastName,
+                email: results[0].email,
+                phoneNumber: results[0].phoneNumber,
+                address: results[0].address,
+                postalCode: results[0].postalCode,
+                city: results[0].city,
+                country: results[0].country
+            },
+            items: [],
+            totalPrice: 0
+        };
+        
+        results.forEach(row => {
+            order.items.push({
+                idItem: row.idItem,
+                name: row.name,
+                image: row.image,
+                quantity: row.quantity,
+                unitPrice: row.unitPrice
+            });
+            order.totalPrice += (row.quantity * row.unitPrice);
+        });
+        
+        res.status(200).json(order);
+    });
+});
+
+app.put('/order/:id/status', (req, res, next) => {
+    const orderId = req.params.id;
+    const { status } = req.body;
+    if (!status) {
+        return res.status(400).json({ error: 'Nouveau statut manquant' });
+    }
+    
+    connection.query('UPDATE \`Order\` SET currentStatus = ? WHERE idOrder = ?', [status, orderId], (error, results) => {
+        if (error) {
+            console.error('Erreur mise à jour statut:', error);
+            return res.status(500).json({ error: 'Erreur lors de la mise à jour du statut' });
+        }
+        
+        // Insert into history
+        connection.query('INSERT INTO CommandeHistory (idOrder, status) VALUES (?, ?)', [orderId, status], (errorHist, resultsHist) => {
+            if (errorHist) {
+                console.error('Erreur insertion historique:', errorHist);
+            }
+            res.status(200).json({ message: 'Statut de la commande mis à jour avec succès' });
+        });
+    });
+});
+
+app.get('/order/user/:id', (req, res, next) => {
     const idUser = req.params.id;
     const query = `
         SELECT o.idOrder, o.date, o.currentStatus, 
@@ -398,7 +413,7 @@ app.get('/order/user/:id', (req, res) => {
     });
 });
 
-app.get('/article/:id/reviews', (req, res) => {
+app.get('/article/:id/reviews', (req, res, next) => {
     const itemId = req.params.id;
     const query = `
         SELECT r.rating, r.comment, r.publishDate, u.firstName, u.lastName
@@ -416,7 +431,7 @@ app.get('/article/:id/reviews', (req, res) => {
     });
 });
 
-app.get('/user/:userId/hasBought/:articleId', (req, res) => {
+app.get('/user/:userId/hasBought/:articleId', (req, res, next) => {
     const userId = req.params.userId;
     const articleId = req.params.articleId;
     const query = `
@@ -434,7 +449,7 @@ app.get('/user/:userId/hasBought/:articleId', (req, res) => {
     });
 });
 
-app.post('/article/:id/reviews', (req, res) => {
+app.post('/article/:id/reviews', (req, res, next) => {
     const itemId = req.params.id;
     const { idUser, rating, comment } = req.body;
 
@@ -452,7 +467,7 @@ app.post('/article/:id/reviews', (req, res) => {
     });
 });
 
-app.post('/complaint', (req, res) => {
+app.post('/complaint', (req, res, next) => {
     // Ajout de 'type' ici
     const { idUser, idOrder, type, topic, description } = req.body;
     
@@ -472,7 +487,7 @@ app.post('/complaint', (req, res) => {
     });
 });
 
-app.get('/complaint/user/:userId', (req, res) => {
+app.get('/complaint/user/:userId', (req, res, next) => {
     const userId = req.params.userId;
     const query = "SELECT * FROM Complaint WHERE idUser = ? ORDER BY idComplaint DESC";
     connection.query(query, [userId], (error, results) => {
@@ -483,7 +498,7 @@ app.get('/complaint/user/:userId', (req, res) => {
     });
 });
 
-app.get('/complaint/:id', (req, res) => {
+app.get('/complaint/:id', (req, res, next) => {
     const complaintId = req.params.id;
     const query = "SELECT c.*, u.firstName, u.lastName FROM Complaint c JOIN User u ON c.idUser = u.idUser WHERE c.idComplaint = ?";
     connection.query(query, [complaintId], (error, results) => {
@@ -498,7 +513,7 @@ app.get('/complaint/:id', (req, res) => {
     });
 });
 
-app.get('/complaint/:id/messages', (req, res) => {
+app.get('/complaint/:id/messages', (req, res, next) => {
     const complaintId = req.params.id;
     // CORRECTION ICI : ORDER BY cm.sendDate (au lieu de publishDate)
     const query = `
@@ -517,7 +532,7 @@ app.get('/complaint/:id/messages', (req, res) => {
     });
 });
 
-app.post('/complaint/:id/messages', (req, res) => {
+app.post('/complaint/:id/messages', (req, res, next) => {
     const complaintId = req.params.id;
     const { idUser, message } = req.body;
     if (!idUser || !message) {
@@ -531,6 +546,120 @@ app.post('/complaint/:id/messages', (req, res) => {
             return res.status(500).json({ error: 'Erreur serveur' });
         }
         res.status(200).json({ message: 'Message ajouté', idMessage: results.insertId });
+    });
+});
+
+app.get('/', (req, res, next) => {
+    const query = `
+        SELECT i.*, 
+               CASE 
+                   WHEN s.idSurfboard IS NOT NULL THEN 'board' 
+                   WHEN w.idWetsuit IS NOT NULL THEN 'wetsuit' 
+                   ELSE 'autre' 
+               END as itemType
+        FROM Item i
+        LEFT JOIN Surfboard s ON i.idItem = s.idSurfboard
+        LEFT JOIN Wetsuit w ON i.idItem = w.idWetsuit
+    `;
+
+    connection.query(query, (error, results) => {
+        if (error) {
+            console.error('Erreur lors de la requête SQL :', error);
+            res.status(500).json({ error: 'Erreur lors de la récupération des données' });
+        } else {
+            res.status(200).json(results);
+        }
+    });
+});
+
+app.get('/:id', (req, res, next) => {
+    const itemId = req.params.id;
+    connection.query('SELECT i.*, s.*, w.* FROM Item i LEFT JOIN Surfboard s ON i.idItem = s.idSurfboard LEFT JOIN Wetsuit w ON i.idItem = w.idWetsuit WHERE i.idItem = ? ', [itemId], (error, results) => {
+        if (error) {
+            console.error('Erreur lors de la requête SQL :', error);
+            res.status(500).json({ error: 'Erreur lors de la récupération des données' });
+        } else {
+            if (results.length > 0) {
+                res.status(200).json(results[0]);
+            } else {
+                res.status(404).json({ error: 'Aucun article trouvé avec cet ID' });
+            }
+        }
+    });
+});
+
+app.put('/:id', (req, res, next) => {
+    const itemId = req.params.id;
+    
+    // 1. On extrait toutes les données envoyées par le Frontend
+    const { 
+        // Données communes
+        name, price, description, amount, image, 
+        // Données Surfboard
+        weight, volume, maxWeight, stability, maneuverability, leash,
+        // Données Wetsuit
+        taille, material, tempMin, tempMax, antiUV 
+    } = req.body;
+
+    // 2. On prépare l'objet pour la table Item (seulement les colonnes qui existent dans Item)
+    const itemToUpdate = {
+        name,
+        price,
+        description,
+        amount,
+        image
+    };
+
+    // 3. Première requête : Mise à jour de la table de base (Item)
+    connection.query('UPDATE Item SET ? WHERE idItem = ?', [itemToUpdate, itemId], (error, results) => {
+        if (error) {
+            console.error('Erreur lors de la mise à jour de Item :', error);
+            return res.status(500).json({ error: 'Erreur lors de la mise à jour des données de base' });
+        } 
+        
+        if (results.affectedRows === 0) {
+            return res.status(404).json({ error: 'Aucun article trouvé avec cet ID' });
+        }
+
+        // 4. Deuxième requête : Mise à jour de la table enfant
+        // -- Si on détecte des caractéristiques de Planche de surf --
+        if (stability && maneuverability && weight && volume && maxWeight) {
+            const isLeash = (leash === true || leash === 'true' || leash === 1) ? 1 : 0;
+            const querySurfboard = `
+                UPDATE Surfboard 
+                SET stability = ?, maneuverability = ?, weight = ?, volume = ?, maxSupportedWeight = ?, withLeash = ? 
+                WHERE idSurfboard = ?
+            `;
+            
+            connection.query(querySurfboard, [stability, maneuverability, weight, volume, maxWeight, isLeash, itemId], (errSurf, resSurf) => {
+                if (errSurf) {
+                    console.error('Erreur mise à jour Surfboard :', errSurf);
+                    return res.status(500).json({ error: 'Erreur mise à jour de la planche' });
+                }
+                return res.status(200).json({ message: 'Planche de surf modifiée avec succès' });
+            });
+
+        // -- Si on détecte des caractéristiques de Combinaison --
+        } else if (taille && material && tempMin && tempMax) {
+            const isUV = (antiUV === true || antiUV === 'true' || antiUV === 'on' || antiUV === 1) ? 1 : 0;
+            const queryWetsuit = `
+                UPDATE Wetsuit 
+                SET size = ?, material = ?, tempMin = ?, tempMax = ?, isAntiUV = ? 
+                WHERE idWetsuit = ?
+            `;
+
+            connection.query(queryWetsuit, [taille, material, tempMin, tempMax, isUV, itemId], (errWet, resWet) => {
+                if (errWet) {
+                    console.error('Erreur mise à jour Wetsuit :', errWet);
+                    return res.status(500).json({ error: 'Erreur mise à jour de la combinaison' });
+                }
+                return res.status(200).json({ message: 'Combinaison modifiée avec succès' });
+            });
+            
+        // -- S'il n'y a pas de caractéristiques spécifiques (Sécurité) --
+        } else {
+            return res.status(200).json({ message: 'Article de base modifié avec succès' });
+        }
     });
 });
 

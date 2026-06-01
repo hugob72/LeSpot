@@ -4,6 +4,8 @@ import '../../styles/homeAdmin.css';
 import Logo from '../../assets/LeSpotLogo.png';
 import AdminStock from '../../components/admin/AdminStock';
 import AddArticle from '../../components/admin/AddArticle';
+import AdminCommandes from '../../components/admin/AdminCommandes';
+import AdminCommandeDetails from '../../components/admin/AdminCommandeDetails';
 
 function HomeAdmin() {
     return (
@@ -16,7 +18,7 @@ function HomeAdmin() {
                 <ul className="admin-menu-list">
                     <Link to="/admin/dashboard" className="admin-menu-item">Dashboard</Link>
                     <Link to="/admin/stock" className="admin-menu-item">Articles</Link>
-                    <Link to="/admin/dashboard" className="admin-menu-item">Commandes</Link>
+                    <Link to="/admin/commandes" className="admin-menu-item">Commandes</Link>
                     <Link to="/admin/dashboard" className="admin-menu-item">Services & Cours</Link>
                     <Link to="/admin/dashboard" className="admin-menu-item">Litiges</Link>
                     <Link to="/admin/dashboard" className="admin-menu-item">Comptes</Link>
@@ -44,6 +46,12 @@ function HomeAdmin() {
                             </Route>
                             <Route path="/admin/stock/add-article">
                                 <AddArticle />
+                            </Route>
+                            <Route exact path="/admin/commandes">
+                                <AdminCommandes />
+                            </Route>
+                            <Route path="/admin/commandes/:idOrder">
+                                <AdminCommandeDetails />
                             </Route>
                         </Switch>
                     </div>
