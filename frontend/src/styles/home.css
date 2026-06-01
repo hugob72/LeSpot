@@ -18,7 +18,7 @@
 .article-container {
     display: flex;
     justify-content: center;
-    width: 80vw;
+    width: 78vw;
     background-color: #fbfbfb;
     padding: 2%;
     /* flex-grow: 1; */

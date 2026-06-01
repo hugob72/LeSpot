@@ -487,6 +487,41 @@ app.post('/complaint', (req, res, next) => {
     });
 });
 
+app.get('/complaint', (req, res, next) => {
+    const query = `
+        SELECT c.*, u.firstName, u.lastName, u.email 
+        FROM Complaint c 
+        JOIN User u ON c.idUser = u.idUser 
+        ORDER BY c.idComplaint DESC
+    `;
+    
+    connection.query(query, (error, results) => {
+        if (error) {
+            console.error('Erreur récupération des réclamations:', error);
+            return res.status(500).json({ error: 'Erreur serveur' });
+        }
+        res.status(200).json(results);
+    });
+});
+
+app.put('/complaint/:id/state', (req, res, next) => {
+    const complaintId = req.params.id;
+    const { state } = req.body;
+
+    if (!state) {
+        return res.status(400).json({ error: 'Nouveau statut manquant' });
+    }
+
+    const query = 'UPDATE Complaint SET state = ? WHERE idComplaint = ?';
+    connection.query(query, [state, complaintId], (error, results) => {
+        if (error) {
+            console.error('Erreur mise à jour statut de la réclamation:', error);
+            return res.status(500).json({ error: 'Erreur lors de la mise à jour du statut' });
+        }
+        res.status(200).json({ message: 'Statut de la réclamation mis à jour avec succès' });
+    });
+});
+
 app.get('/complaint/user/:userId', (req, res, next) => {
     const userId = req.params.userId;
     const query = "SELECT * FROM Complaint WHERE idUser = ? ORDER BY idComplaint DESC";

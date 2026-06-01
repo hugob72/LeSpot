@@ -34,6 +34,7 @@ function ComplaintDetail() {
                 if (data.error) {
                     alert(data.error);
                 } else {
+                    console.log(data);
                     setComplaint(data);
                 }
             })

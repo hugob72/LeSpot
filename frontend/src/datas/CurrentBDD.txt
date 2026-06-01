@@ -153,7 +153,7 @@ CREATE TABLE ComplaintMessage (
 ALTER TABLE Complaint 
 ADD COLUMN type ENUM('livraison', 'produit_defectueux', 'erreur_commande', 'remboursement', 'autre') NOT NULL AFTER topic;
 
-
+ALTER TABLE Complaint ADD COLUMN date DATETIME DEFAULT CURRENT_TIMESTAMP AFTER description;
 --------------------------
 --- Insertion des données
 --------------------------

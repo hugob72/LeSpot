@@ -6,6 +6,8 @@ import AdminStock from '../../components/admin/AdminStock';
 import AddArticle from '../../components/admin/AddArticle';
 import AdminCommandes from '../../components/admin/AdminCommandes';
 import AdminCommandeDetails from '../../components/admin/AdminCommandeDetails';
+import AdminComplaints from '../../components/admin/AdminComplaints';
+import AdminComplaintDetail from '../../components/admin/AdminComplaintDetail';
 
 function HomeAdmin() {
     return (
@@ -20,7 +22,7 @@ function HomeAdmin() {
                     <Link to="/admin/stock" className="admin-menu-item">Articles</Link>
                     <Link to="/admin/commandes" className="admin-menu-item">Commandes</Link>
                     <Link to="/admin/dashboard" className="admin-menu-item">Services & Cours</Link>
-                    <Link to="/admin/dashboard" className="admin-menu-item">Litiges</Link>
+                    <Link to="/admin/litiges" className="admin-menu-item">Litiges</Link>
                     <Link to="/admin/dashboard" className="admin-menu-item">Comptes</Link>
                 </ul>
             </aside>
@@ -52,6 +54,12 @@ function HomeAdmin() {
                             </Route>
                             <Route path="/admin/commandes/:idOrder">
                                 <AdminCommandeDetails />
+                            </Route>
+                            <Route exact path="/admin/litiges">
+                                <AdminComplaints />
+                            </Route>
+                            <Route path="/admin/litiges/:idComplaint">
+                                <AdminComplaintDetail />
                             </Route>
                         </Switch>
                     </div>
