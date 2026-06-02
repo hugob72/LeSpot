@@ -25,6 +25,7 @@ function Detail() {
     const [userId, setUserId] = useState(null);
     const [hasBought, setHasBought] = useState(false);
     const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
+    const [isFavorite, setIsFavorite] = useState(false);
 
     const unite = {
         price: '€',
@@ -74,6 +75,10 @@ function Detail() {
                     .then(res => res.json())
                     .then(data => setHasBought(data.hasBought))
                     .catch(err => console.error('Erreur vérification achat:', err));
+                fetch(`http://localhost:3001/favorites/check?idUser=${storedUserId}&idItem=${idArticle}`)
+                .then(res => res.json())
+                .then(data => setIsFavorite(data.isFavorite))
+                .catch(err => console.error(err));
             }
     }, [isEditing, idArticle]);
 
@@ -83,6 +88,26 @@ function Detail() {
             ...prevState,
             [name]: value 
         }));
+    };
+
+    // NOUVEAU : Fonction pour ajouter/retirer des favoris
+    const handleToggleFavorite = () => {
+        if (!userId) {
+            alert("Vous devez être connecté pour gérer vos favoris !");
+            return;
+        }
+
+        fetch('http://localhost:3001/favorites/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idUser: userId, idItem: article.idItem })
+        })
+        .then(res => res.json())
+        .then(data => {
+            setIsFavorite(data.action === 'added');
+            alert(data.message); // Confirmation visuelle via boîte de dialogue
+        })
+        .catch(err => console.error(err));
     };
 
     const handleAddToCart = () => {
@@ -204,7 +229,9 @@ function Detail() {
                         <p className="product-price">{article.price}€</p>
                         <div className='product-button-action'>
                             <button onClick={handleAddToCart}>Ajouter au panier</button>
-                            <button>Favori</button>
+                            <button onClick={handleToggleFavorite}style={{ backgroundColor: isFavorite ? '#ef4444' : '#94a3b8', color: 'white' }}>
+                                {isFavorite ? '❤️ En favori' : '🤍 Favori'}
+                            </button>
                         </div>
                     </div>
 

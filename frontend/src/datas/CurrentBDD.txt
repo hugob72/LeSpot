@@ -171,6 +171,31 @@ INSERT INTO TypeService (name, description, image, defaultDuration, basePrice) V
 ('Nettoyage de plage', 'Session bénévole et écologique pour préserver notre terrain de jeu. Matériel fourni.', 'beach_clean.jpg', 120, 0.00);
 
 -- Note : La table Service contiendra ensuite les créneaux spécifiques liés à ces TypeService.
+
+ALTER TABLE Sale
+ADD COLUMN code VARCHAR(50) NOT NULL UNIQUE AFTER idSale,
+ADD COLUMN description TEXT NULL AFTER rate,
+ADD COLUMN conditions TEXT NULL AFTER description,
+ADD COLUMN isFeatured BOOLEAN DEFAULT FALSE AFTER dateFin;
+
+ALTER TABLE `Order`
+ADD COLUMN pricePaid DECIMAL(10,2) NOT NULL AFTER idUser;
+
+ALTER TABLE Item ADD COLUMN onSale BOOLEAN DEFAULT FALSE AFTER image;
+ALTER TABLE `Order` ADD COLUMN pricePaid DECIMAL(10,2) NOT NULL AFTER idUser;
+
+CREATE TABLE Favorite (
+    idFavorite INT AUTO_INCREMENT PRIMARY KEY,
+    idUser INT NOT NULL,
+    idItem INT NULL,
+    idTypeService INT NULL,
+    FOREIGN KEY (idUser) REFERENCES `User`(idUser) ON DELETE CASCADE,
+    FOREIGN KEY (idItem) REFERENCES Item(idItem) ON DELETE CASCADE,
+    FOREIGN KEY (idTypeService) REFERENCES TypeService(idTypeService) ON DELETE CASCADE,
+    -- Empêche les doublons exacts
+    UNIQUE KEY unique_user_item (idUser, idItem),
+    UNIQUE KEY unique_user_service (idUser, idTypeService)
+) ENGINE = InnoDB;
 --------------------------
 --- Insertion des données
 --------------------------

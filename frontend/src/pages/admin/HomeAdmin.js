@@ -11,6 +11,9 @@ import AdminComplaintDetail from '../../components/admin/AdminComplaintDetail';
 import AdminUsers from '../../components/admin/AdminUser';
 import AdminServices from '../../components/admin/AdminServices';
 import AddService from '../../components/admin/AddService';
+import AdminPromotions from '../../components/admin/AdminPromotions';
+import AddPromotion from '../../components/admin/AddPromotion';
+
 
 
 
@@ -28,6 +31,7 @@ function HomeAdmin() {
                     <Link to="/admin/commandes" className="admin-menu-item">Commandes</Link>
                     <Link to="/admin/services" className="admin-menu-item">Services & Cours</Link>
                     <Link to="/admin/litiges" className="admin-menu-item">Litiges</Link>
+                    <Link to="/admin/promotions" className="admin-menu-item">Promotions</Link>
                     <Link to="/admin/users" className="admin-menu-item">Comptes</Link>
                 </ul>
             </aside>
@@ -69,6 +73,16 @@ function HomeAdmin() {
                             </Route>
                             <Route path="/admin/add-service/:idService">
                                 <AddService />
+                            </Route>
+                            {/* --- Routes pour le module Promotions --- */}
+                            <Route exact path="/admin/promotions">
+                                <AdminPromotions />
+                            </Route>
+                            <Route exact path="/admin/add-promotion">
+                                <AddPromotion />
+                            </Route>
+                            <Route path="/admin/add-promotion/:idPromotion">
+                                <AddPromotion />
                             </Route>
                             <Route exact path="/admin/litiges">
                                 <AdminComplaints />

@@ -56,6 +56,7 @@ function AdminStock() {
                             <th>Nom</th>
                             <th>Description</th>
                             <th>Prix</th>
+                            <th>En Promo</th> {/* NOUVELLE COLONNE */}
                             <th>Quantité</th>
                             <th>Action</th>
                         </tr>
@@ -67,6 +68,16 @@ function AdminStock() {
                                 <td className="admin-table-name">{article.name}</td>
                                 <td className="admin-table-desc">{article.description}</td>
                                 <td>{article.price} €</td>
+                                
+                                {/* NOUVELLE CELLULE : Affichage conditionnel de la promotion */}
+                                <td style={{ textAlign: 'center' }}>
+                                    {article.onSale === 1 || article.onSale === true ? (
+                                        <span style={{ backgroundColor: '#fee2e2', color: '#ef4444', padding: '4px 8px', borderRadius: '12px', fontWeight: 'bold', fontSize: '0.85rem' }}>🏷️ Oui</span>
+                                    ) : (
+                                        <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Non</span>
+                                    )}
+                                </td>
+
                                 <td>
                                     <span className={`stock-badge ${article.amount > 0 ? 'in-stock' : 'out-of-stock'}`}>
                                         {article.amount}

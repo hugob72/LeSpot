@@ -19,13 +19,15 @@ function Header() {
             <ul className="nav-links">
                 <li><Link to="/">Accueil</Link></li>
                 <li><Link to="/services">Nos services</Link></li>
+                <li><Link to="/promotions">Promotions</Link></li>
                 <li><Link to="/preferences">Préférences</Link></li>
                 <li><Link to="/login">Connexion</Link></li>
+                <li><Link to="/favoris">Mes Favoris</Link></li>
                 <li><Link to="/orders">Mes commandes</Link></li>
                 <li><Link to="/bookings">Mes réservations</Link></li>
                 <li><Link to="/complaints">Mes réclamations</Link></li>
+                <li><Link to="/reviews">Mes avis</Link></li>
                 <li><Link to="/contact">Contact</Link></li>
-                <li><Link to="/add-article">Ajout article</Link></li>
                 <li><Link to="/admin">Admin</Link></li>
             </ul>
 

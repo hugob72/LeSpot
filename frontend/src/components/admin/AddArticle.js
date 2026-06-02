@@ -24,32 +24,22 @@ function AddArticle() {
            fetch(`http://localhost:3001/${idArticle}`)
             .then(response => response.json())
             .then(data => {
-                // CORRECTION 1 : On traduit les champs de la BDD pour le state de l'article
                 setArticle({
                     ...data,
                     leash: data.withLeash === 1,
                     antiUV: data.isAntiUV === 1,
-                    maxWeight: data.maxSupportedWeight, // Traduction de la BDD vers le Front
-                    taille: data.size                   // Traduction de la BDD vers le Front
+                    onSale: data.onSale === 1, // <--- NOUVEAU : Traduction de la BDD vers le booléen Front
+                    maxWeight: data.maxSupportedWeight,
+                    taille: data.size
                 });
                 
-                // CORRECTION 2 : On met à jour le state séparé de la matière
-                if (data.material) {
-                    setMaterialWetsuit(data.material);
-                }
+                if (data.material) setMaterialWetsuit(data.material);
 
-                // Détection du type d'article
-                if (data.withLeash !== null && data.withLeash !== undefined) {
-                    setTypeArticle("Planche de surf");
-                } else if (data.isAntiUV !== null && data.isAntiUV !== undefined) {
-                    setTypeArticle("Combinaison");
-                } else {
-                    setTypeArticle("---");
-                }
+                if (data.withLeash !== null && data.withLeash !== undefined) setTypeArticle("Planche de surf");
+                else if (data.isAntiUV !== null && data.isAntiUV !== undefined) setTypeArticle("Combinaison");
+                else setTypeArticle("---");
             })
-            .catch(error => {
-                console.error('Erreur lors de la récupération de l\'article :', error);
-            }); 
+            .catch(error => console.error('Erreur :', error)); 
         }
     }, [idArticle]);
 
@@ -160,6 +150,11 @@ function AddArticle() {
 
             <label>Description du produit</label>
             <input type="text" name="description" onChange={handleInputChange} className="detail-input" value={article.description || ''}></input>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '15px', marginBottom: '15px', backgroundColor: '#fef2f2', padding: '15px', borderRadius: '8px', border: '1px dashed #fca5a5' }}>
+                <input type="checkbox" name="onSale" id="onSale" onChange={handleInputChange} checked={article.onSale || false} style={{ width: '20px', height: '20px', cursor: 'pointer' }} />
+                <label htmlFor="onSale" style={{ margin: 0, fontWeight: 'bold', color: '#ef4444', cursor: 'pointer' }}>Cet article est éligible aux réductions (en promotion)</label>
+            </div>
 
             <label>Prix</label>
             <input type="number" name="price" step="0.01" onChange={handleInputChange} className="detail-input" value={article.price || 0}></input>

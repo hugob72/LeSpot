@@ -21,6 +21,9 @@ import ComplaintDetail from './pages/client/ComplaintDetail';
 import Service from './pages/client/Service';
 import ServiceDetail from './pages/client/ServiceDetail';
 import MyBookings from './pages/client/MyBookings';
+import Promotions from './pages/client/Promotions';
+import MyFavorites from './pages/client/MyFavorite';
+import MyReviews from './pages/client/MyReviews';
 
 
 
@@ -45,6 +48,15 @@ root.render(
             </Route>
             <Route path="/detail/:idArticle">
               <Detail />
+            </Route>
+            <Route path="/promotions">
+                <Promotions />
+            </Route>
+            <Route path="/favoris">
+                <MyFavorites />
+            </Route>
+            <Route path="/reviews">
+                <MyReviews />
             </Route>
             <Route path="/preferences">
               <Preferences />
