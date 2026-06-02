@@ -4,12 +4,70 @@ const connection = require('../db');
 
 router.post('/order', (req, res) => {
     const { idUser, cartItems, finalTotal } = req.body;
+    
     if (!idUser || !cartItems || cartItems.length === 0 || !finalTotal) {
         return res.status(400).json({ error: 'Données invalides' });
     }
-    connection.query('INSERT INTO `Order` (idUser, pricePaid, currentStatus) VALUES (?, ?, ?)', [idUser, finalTotal, 'payee'], (error, results) => {
-        if (error) return res.status(500).json({ error: 'Erreur création commande' });
-        res.status(200).json({ message: 'Commande créée', idOrder: results.insertId });
+
+    // On démarre une transaction pour sécuriser l'enchaînement des requêtes
+    connection.beginTransaction(err => {
+        if (err) return res.status(500).json({ error: 'Erreur serveur (Transaction)' });
+
+        // 1. Création de la commande principale
+        connection.query('INSERT INTO `Order` (idUser, pricePaid, currentStatus) VALUES (?, ?, ?)', 
+        [idUser, finalTotal, 'payee'], 
+        (error, results) => {
+            if (error) {
+                return connection.rollback(() => res.status(500).json({ error: 'Erreur création commande' }));
+            }
+
+            const idOrder = results.insertId;
+
+            // Fonction utilitaire pour transformer les requêtes callback en Promesses (plus lisible pour la boucle)
+            const queryPromise = (sql, params) => {
+                return new Promise((resolve, reject) => {
+                    connection.query(sql, params, (err, result) => {
+                        if (err) reject(err);
+                        else resolve(result);
+                    });
+                });
+            };
+
+            // 2 & 3. Insertion des détails et mise à jour du stock pour chaque article
+            const processItems = async () => {
+                try {
+                    for (const item of cartItems) {
+                        // On insère l'article dans OrderDetail
+                        await queryPromise(
+                            'INSERT INTO OrderDetail (idOrder, idItem, quantity, unitPrice) VALUES (?, ?, ?, ?)',
+                            [idOrder, item.idItem, item.quantity, item.price]
+                        );
+
+                        // On déduit la quantité du stock (en s'assurant que le stock ne tombe pas sous zéro grâce au GREATEST)
+                        await queryPromise(
+                            'UPDATE Item SET amount = GREATEST(amount - ?, 0) WHERE idItem = ?',
+                            [item.quantity, item.idItem]
+                        );
+                    }
+
+                    // Si tout s'est bien passé, on valide définitivement la transaction
+                    connection.commit(err => {
+                        if (err) {
+                            return connection.rollback(() => res.status(500).json({ error: 'Erreur lors de la validation finale' }));
+                        }
+                        res.status(200).json({ message: 'Commande créée et stock mis à jour', idOrder });
+                    });
+
+                } catch (error) {
+                    // En cas de problème dans la boucle, on annule tout (la commande ne sera pas sauvegardée)
+                    console.error("Erreur d'insertion des articles :", error);
+                    connection.rollback(() => res.status(500).json({ error: 'Erreur lors du traitement des articles' }));
+                }
+            };
+
+            // Lancement du traitement des articles
+            processItems();
+        });
     });
 });
 

@@ -3,97 +3,124 @@ import Footer from '../../components/client/Footer';
 import { useParams } from 'react-router-dom';
 import { useState, useEffect, useContext } from 'react';
 import { CartContext } from '../../context/CartContext';
+import { PreferencesContext } from '../../context/PreferencesContextProvider';
 import '../../styles/Detail.css';
 import '../../styles/home.css';
 
+const exchangeRates = { EUR: 1, USD: 1.08, GBP: 0.85 };
+const symbols = { EUR: '€', USD: '$', GBP: '£' };
+
+const translations = {
+    fr: {
+        addCart: "Ajouter au panier",
+        favAdded: "❤️ En favori",
+        favAdd: "🤍 Favori",
+        reviewsTitle: "Avis des clients",
+        addReviewTitle: "Ajouter un avis",
+        ratingLabel: "Note :",
+        stars: "étoiles",
+        commentLabel: "Commentaire :",
+        submitReview: "Publier l'avis",
+        noReviews: "Aucun avis pour cet article pour le moment.",
+        cartAlert: "Article ajouté au panier !",
+        favAlertReq: "Vous devez être connecté pour gérer vos favoris !",
+        reviewSuccess: "Avis ajouté avec succès",
+        mapping: {
+            price: 'Prix', stability: 'Stabilité', maneuverabilité: 'Maniabilité',
+            volume: 'Volume', weight: 'Poids', maxSupportedWeight: 'Poids maximum supporté',
+            withLeash: 'Leash', size: 'Taille', material: 'Matière principale',
+            tempMin: 'Température minimale', tempMax: 'Température maximale', isAntiUV: 'Anti UV'
+        }
+    },
+    en: {
+        addCart: "Add to cart",
+        favAdded: "❤️ In favorites",
+        favAdd: "🤍 Favorite",
+        reviewsTitle: "Customer Reviews",
+        addReviewTitle: "Add a review",
+        ratingLabel: "Rating:",
+        stars: "stars",
+        commentLabel: "Comment:",
+        submitReview: "Submit review",
+        noReviews: "No reviews for this item yet.",
+        cartAlert: "Item added to cart!",
+        favAlertReq: "You must be logged in to manage your favorites!",
+        reviewSuccess: "Review successfully added",
+        mapping: {
+            price: 'Price', stability: 'Stability', maneuverabilité: 'Maneuverability',
+            volume: 'Volume', weight: 'Weight', maxSupportedWeight: 'Max supported weight',
+            withLeash: 'Leash', size: 'Size', material: 'Main material',
+            tempMin: 'Minimum temperature', tempMax: 'Maximum temperature', isAntiUV: 'Anti-UV'
+        }
+    }
+};
+
 function Detail() {
+    const { language, currency, theme } = useContext(PreferencesContext);
+    const t = translations[language] || translations.fr;
+
     const { idArticle } = useParams();
     const { cartItems, setCartItems } = useContext(CartContext);
     const [article, setArticle] = useState({});
     const [image, setImage] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [updatedItem, setUpdatedItem] = useState({
-        name: '',
-        price: 0,
-        description: '',
-        image: '',
-        onSale: false
+        name: '', price: 0, description: '', image: '', onSale: false
     });
     
-    // Nouveaux states pour les avis
     const [reviews, setReviews] = useState([]);
     const [userId, setUserId] = useState(null);
     const [hasBought, setHasBought] = useState(false);
     const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
     const [isFavorite, setIsFavorite] = useState(false);
 
+    // On retire 'price' de la liste des unités fixes pour le gérer avec la devise
     const unite = {
-        price: '€',
-        weight: 'kg',
-        maxSupportedWeight: 'kg',
-        volume: 'L',
-        tempMin: '°C',
-        tempMax: '°C'
-    }
-    const mapping = {
-        price: 'Prix',
-        stability: 'Stabilité',
-        maneuverabilité: 'Maniabilité',
-        volume: 'Volume',
-        weight: 'Poids',
-        maxSupportedWeight: 'Poids maximum supporté',
-        withLeash: 'Leash',
-        size: 'Taille',
-        material: 'Matière principale',
-        tempMin: 'Température minimale',
-        tempMax: 'Température maximale',
-        isAntiUV: 'Anti UV'
-    }
+        weight: 'kg', maxSupportedWeight: 'kg', volume: 'L', tempMin: '°C', tempMax: '°C'
+    };
+
+    const formatPrice = (priceInEuros) => {
+        const converted = priceInEuros * exchangeRates[currency];
+        return `${converted.toFixed(2)} ${symbols[currency]}`;
+    };
 
     useEffect(() => {
-            fetch(`http://localhost:3001/article/${idArticle}`)
-                .then(response => response.json())
-                .then(data => {
-                    setArticle(data);
-                    setUpdatedItem(data);
-                })
-                .catch(error => {
-                    console.error('Erreur lors de la récupération de l\'article :', error);
-                });
+        fetch(`http://localhost:3001/article/${idArticle}`)
+            .then(response => response.json())
+            .then(data => {
+                setArticle(data);
+                setUpdatedItem(data);
+            })
+            .catch(error => console.error('Erreur lors de la récupération de l\'article :', error));
 
-            // Fetch reviews
-            fetch(`http://localhost:3001/article/${idArticle}/reviews`)
+        fetch(`http://localhost:3001/article/${idArticle}/reviews`)
+            .then(res => res.json())
+            .then(data => setReviews(data))
+            .catch(err => console.error('Erreur récupération avis:', err));
+
+        const storedUserId = localStorage.getItem('userId');
+        if (storedUserId) {
+            setUserId(storedUserId);
+            fetch(`http://localhost:3001/user/${storedUserId}/hasBought/${idArticle}`)
                 .then(res => res.json())
-                .then(data => setReviews(data))
-                .catch(err => console.error('Erreur récupération avis:', err));
-
-            // Check if user is connected and has bought
-            const storedUserId = localStorage.getItem('userId');
-            if (storedUserId) {
-                setUserId(storedUserId);
-                fetch(`http://localhost:3001/user/${storedUserId}/hasBought/${idArticle}`)
-                    .then(res => res.json())
-                    .then(data => setHasBought(data.hasBought))
-                    .catch(err => console.error('Erreur vérification achat:', err));
-                fetch(`http://localhost:3001/favorites/check?idUser=${storedUserId}&idItem=${idArticle}`)
+                .then(data => setHasBought(data.hasBought))
+                .catch(err => console.error('Erreur vérification achat:', err));
+                
+            fetch(`http://localhost:3001/favorites/check?idUser=${storedUserId}&idItem=${idArticle}`)
                 .then(res => res.json())
                 .then(data => setIsFavorite(data.isFavorite))
                 .catch(err => console.error(err));
-            }
+        }
     }, [isEditing, idArticle]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setUpdatedItem(prevState => ({
-            ...prevState,
-            [name]: value 
-        }));
+        setUpdatedItem(prevState => ({ ...prevState, [name]: value }));
     };
 
-    // NOUVEAU : Fonction pour ajouter/retirer des favoris
     const handleToggleFavorite = () => {
         if (!userId) {
-            alert("Vous devez être connecté pour gérer vos favoris !");
+            alert(t.favAlertReq);
             return;
         }
 
@@ -105,7 +132,7 @@ function Detail() {
         .then(res => res.json())
         .then(data => {
             setIsFavorite(data.action === 'added');
-            alert(data.message); // Confirmation visuelle via boîte de dialogue
+            // Optionnel: on peut enlever l'alerte pour rendre l'ajout plus fluide
         })
         .catch(err => console.error(err));
     };
@@ -117,74 +144,7 @@ function Detail() {
         } else {
             setCartItems([...cartItems, {...article, quantity: 1}]);
         }
-        alert('Article ajouté au panier !');
-    };
-
-    const handleImageChange = (e) => {
-        setImage(e.target.files[0]);
-    };
-
-    const handleUpdateItem = async () => {
-        let finalImageUrl = updatedItem.image;
-
-        // 1. If a new image was selected, upload it first
-        if (image) {
-            const formData = new FormData();
-            formData.append('image', image);
-            formData.append('articleId', idArticle);
-
-            try {
-                const uploadResponse = await fetch('http://localhost:3001/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                const uploadData = await uploadResponse.json();
-                // Assume server returns { imageUrl: "path/to/img.jpg" }
-                finalImageUrl = uploadData.imageUrl || uploadData.image; 
-            } catch (error) {
-                console.error('Erreur upload image:', error);
-            }
-        }
-
-        // 2. Update the product with the new data and the (possibly new) image URL
-        const itemToSave = { ...updatedItem, image: finalImageUrl };
-
-        fetch(`http://localhost:3001/article/${idArticle}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(itemToSave)
-        })
-            .then(response => response.json())
-            .then(data => {
-                setArticle(data);
-                setIsEditing(false);
-                setImage(null); // Clear the file selection state
-            })
-            .catch(error => {
-                console.error('Erreur mise à jour article:', error);
-            });
-    };
-
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        const formData = new FormData();
-        formData.append('image', file);
-        formData.append('articleId', idArticle);
-        fetch('http://localhost:3001/upload', {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                const imageUrl = data.image;
-                setUpdatedItem(prevState => ({
-                    ...prevState,
-                    image: data.image
-                }));
-            })
-            .catch(error => {
-                console.error('Erreur lors du téléchargement de l\'image :', error);
-            });
+        alert(t.cartAlert);
     };
 
     const handleAddReview = (e) => {
@@ -199,9 +159,8 @@ function Detail() {
             if (data.error) {
                 alert(data.error);
             } else {
-                alert('Avis ajouté avec succès');
+                alert(t.reviewSuccess);
                 setNewReview({ rating: 5, comment: '' });
-                // Re-fetch reviews
                 fetch(`http://localhost:3001/article/${idArticle}/reviews`)
                     .then(res => res.json())
                     .then(data => setReviews(data));
@@ -211,101 +170,100 @@ function Detail() {
     };
 
     return (
-    <div className="home">
+    <div className={`home ${theme === 'dark' ? 'dark-mode' : ''}`}>
         <Header />
         <main className="main-section">
-            <div className="product-card">
+            <div className="product-card" style={{backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)'}}>
                 <div className="product-image-section">
                     <img src={article.image} alt={article.name} className="detail-image"/>
                 </div>
 
                 <div className="product-info-section">
-                        
-                    <h1 className="product-title">{article.name}</h1>
-
-                    <p className="product-description">{article.description}</p>
+                    <h1 className="product-title" style={{color: 'var(--text-color)'}}>{article.name}</h1>
+                    <p className="product-description" style={{color: 'var(--text-color)'}}>{article.description}</p>
 
                     <div className='price'>
-                        <p className="product-price">{article.price}€</p>
+                        <p className="product-price">{article.price ? formatPrice(article.price) : ''}</p>
                         <div className='product-button-action'>
-                            <button onClick={handleAddToCart}>Ajouter au panier</button>
-                            <button onClick={handleToggleFavorite}style={{ backgroundColor: isFavorite ? '#ef4444' : '#94a3b8', color: 'white' }}>
-                                {isFavorite ? '❤️ En favori' : '🤍 Favori'}
+                            <button onClick={handleAddToCart}>{t.addCart}</button>
+                            <button onClick={handleToggleFavorite} style={{ backgroundColor: isFavorite ? '#ef4444' : '#94a3b8', color: 'white' }}>
+                                {isFavorite ? t.favAdded : t.favAdd}
                             </button>
                         </div>
                     </div>
 
                     <div className='product-specifications table-responsive'>
                         <table className="admin-table">
-
                             <tbody>
                                 {Object.entries(article).map(([key, value]) => (
-                                    (mapping[key] && value !== null && value !== undefined) && (
+                                    (t.mapping[key] && value !== null && value !== undefined) && (
                                         <tr key={key}>
-                                            <td>{mapping[key]}</td>
-                                            <td>{value} {unite[key]}</td>
+                                            <td style={{color: 'var(--text-color)'}}>{t.mapping[key]}</td>
+                                            <td style={{color: 'var(--text-color)'}}>
+                                                {/* On formate dynamiquement si la clé est le prix, sinon on applique l'unité standard */}
+                                                {key === 'price' ? formatPrice(value) : `${value} ${unite[key] || ''}`}
+                                            </td>
                                         </tr>
                                     )
                                 ))}
                             </tbody>
-
                         </table>
                     </div>
-         
                 </div>
             </div>
 
-            <div className="reviews-section">
-                <h2>Avis des clients</h2>
+            <div className="reviews-section" style={{backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)'}}>
+                <h2 style={{color: 'var(--text-color)'}}>{t.reviewsTitle}</h2>
                 
                 {hasBought && (
                     <form className="add-review-form" onSubmit={handleAddReview}>
-                        <h3>Ajouter un avis</h3>
+                        <h3 style={{color: 'var(--text-color)'}}>{t.addReviewTitle}</h3>
                         <div className="form-group">
-                            <label>Note :</label>
+                            <label style={{color: 'var(--text-color)'}}>{t.ratingLabel}</label>
                             <select 
                                 value={newReview.rating} 
                                 onChange={(e) => setNewReview({...newReview, rating: parseInt(e.target.value)})}
+                                style={{backgroundColor: 'var(--bg-color)', color: 'var(--text-color)'}}
                             >
                                 {[5, 4, 3, 2, 1].map(num => (
-                                    <option key={num} value={num}>{num} étoiles</option>
+                                    <option key={num} value={num}>{num} {t.stars}</option>
                                 ))}
                             </select>
                         </div>
                         <div className="form-group">
-                            <label>Commentaire :</label>
+                            <label style={{color: 'var(--text-color)'}}>{t.commentLabel}</label>
                             <textarea 
                                 value={newReview.comment} 
                                 onChange={(e) => setNewReview({...newReview, comment: e.target.value})} 
                                 required 
                                 rows="4"
+                                style={{backgroundColor: 'var(--bg-color)', color: 'var(--text-color)'}}
                             />
                         </div>
-                        <button type="submit" className="button btn-save">Publier l'avis</button>
+                        <button type="submit" className="button btn-save">{t.submitReview}</button>
                     </form>
                 )}
                 
                 <div className="reviews-list">
                     {reviews.length > 0 ? (
                         reviews.map((review, index) => (
-                            <div key={index} className="review-item">
+                            <div key={index} className="review-item" style={{borderColor: 'var(--border-color)'}}>
                                 <div className="review-header">
-                                    <span className="review-author">{review.firstName} {review.lastName}</span>
+                                    <span className="review-author" style={{color: 'var(--text-color)'}}>{review.firstName} {review.lastName}</span>
                                     <span className="review-rating">{'⭐'.repeat(review.rating)}</span>
                                 </div>
-                                <p className="review-comment">{review.comment}</p>
-                                <span className="review-date">{new Date(review.publishDate).toLocaleDateString()}</span>
+                                <p className="review-comment" style={{color: 'var(--text-color)'}}>{review.comment}</p>
+                                <span className="review-date" style={{color: 'var(--text-color)'}}>{new Date(review.publishDate).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US')}</span>
                             </div>
                         ))
                     ) : (
-                        <p className="no-reviews">Aucun avis pour cet article pour le moment.</p>
+                        <p className="no-reviews" style={{color: 'var(--text-color)'}}>{t.noReviews}</p>
                     )}
                 </div>
             </div>
         </main>
         <Footer />
     </div>
-        
     );
 }
 export default Detail;

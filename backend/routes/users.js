@@ -29,7 +29,7 @@ router.post('/login', (req, res) => {
                 if (compareError) return res.status(500).json({ error: 'Erreur comparaison' });
                 if (match) {
                     const token = jwt.sign({userId: results[0].idUser}, 'votre_cle_secrete', { expiresIn: '24h' });
-                    res.status(200).json({ message: 'Connexion réussie !', userId: results[0].idUser, token: token });
+                    res.status(200).json({ message: 'Connexion réussie !', userId: results[0].idUser, token: token, role:  results[0].role});
                 } else {
                     res.status(401).json({ error: 'Mot de passe incorrect' });
                 }

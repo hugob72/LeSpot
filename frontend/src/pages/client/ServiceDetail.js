@@ -4,10 +4,52 @@ import Calendar from 'react-calendar';
 import Header from '../../components/client/Header';
 import Footer from '../../components/client/Footer';
 import { CartContext } from '../../context/CartContext';
-import 'react-calendar/dist/Calendar.css'; // Le CSS de base qu'on va écraser
-import '../../styles/serviceDetail.css'; // Notre CSS personnalisé
+import { PreferencesContext } from '../../context/PreferencesContextProvider';
+import 'react-calendar/dist/Calendar.css'; 
+import '../../styles/serviceDetail.css'; 
+
+const exchangeRates = { EUR: 1, USD: 1.08, GBP: 0.85 };
+const symbols = { EUR: '€', USD: '$', GBP: '£' };
+
+const translations = {
+    fr: {
+        loading: "Chargement des disponibilités...",
+        error: "Prestation introuvable.",
+        alreadyInCart: "Cette session est déjà dans votre panier.",
+        minutes: "minutes",
+        startingAt: "À partir de",
+        bookSession: "Réserver votre session",
+        availabilitiesOn: "Disponibilités le",
+        noSlots: "Aucune session prévue à cette date.",
+        places: "places",
+        full: "Complet",
+        selectedSession: "Vous avez sélectionné la session de",
+        continueBooking: "Continuer la réservation",
+        onDate: "le",
+        atTime: "à"
+    },
+    en: {
+        loading: "Loading availability...",
+        error: "Service not found.",
+        alreadyInCart: "This session is already in your cart.",
+        minutes: "minutes",
+        startingAt: "Starting at",
+        bookSession: "Book your session",
+        availabilitiesOn: "Availability on",
+        noSlots: "No sessions scheduled on this date.",
+        places: "spots",
+        full: "Full",
+        selectedSession: "You have selected the session at",
+        continueBooking: "Continue booking",
+        onDate: "on",
+        atTime: "at"
+    }
+};
 
 function ServiceDetail() {
+    const { language, currency, theme } = useContext(PreferencesContext);
+    const t = translations[language] || translations.fr;
+
     const { id } = useParams();
     const history = useHistory();
     const userId = localStorage.getItem('userId');
@@ -16,19 +58,21 @@ function ServiceDetail() {
     const [service, setService] = useState(null);
     const [slots, setSlots] = useState([]);
     
-    // États pour la réservation
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedSlot, setSelectedSlot] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const formatPrice = (priceInEuros) => {
+        const converted = priceInEuros * exchangeRates[currency];
+        return `${converted.toFixed(2)}${symbols[currency]}`;
+    };
+
     useEffect(() => {
-        // 1. Récupération des infos de la prestation
         fetch(`http://localhost:3001/catalog/services/${id}`)
             .then(res => res.json())
             .then(data => setService(data))
             .catch(err => console.error('Erreur prestation:', err));
 
-        // 2. Récupération des créneaux (Agenda)
         fetch(`http://localhost:3001/catalog/services/${id}/slots`)
             .then(res => res.json())
             .then(data => {
@@ -41,9 +85,7 @@ function ServiceDetail() {
             });
     }, [id]);
 
-    // Filtrer les créneaux pour le jour sélectionné sur le calendrier
     const getSlotsForSelectedDate = () => {
-        // Formate la date sélectionnée en YYYY-MM-DD (format local pour éviter les décalages de fuseau)
         const offset = selectedDate.getTimezoneOffset() * 60000;
         const localDate = new Date(selectedDate.getTime() - offset).toISOString().split('T')[0];
 
@@ -55,81 +97,80 @@ function ServiceDetail() {
 
     const handleDateChange = (date) => {
         setSelectedDate(date);
-        setSelectedSlot(null); // Réinitialise le créneau si on change de jour
+        setSelectedSlot(null); 
     };
 
-   const handleBooking = () => {
+    const handleBooking = () => {
         if (!userId) {
             history.push('/login');
             return;
         }
         if (!selectedSlot) return;
 
-        // On vérifie si ce créneau n'est pas DÉJÀ dans le panier
         const alreadyInCart = cartItems.find(item => item.isService && item.idService === selectedSlot.idService);
         if (alreadyInCart) {
-            alert('Cette session est déjà dans votre panier.');
+            alert(t.alreadyInCart);
             return;
         }
 
-        // On crée l'objet formaté pour le panier
+        // On adapte le nom de l'article dans le panier en fonction de la langue
+        const formattedDate = new Date(selectedSlot.date).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US');
+        const formattedTime = selectedSlot.heure.substring(0,5);
+        
         const serviceCartItem = {
-            isService: true, // Ce flag est crucial pour la suite !
+            isService: true, 
             idService: selectedSlot.idService,
-            name: `${service.name} (le ${new Date(selectedSlot.date).toLocaleDateString('fr-FR')} à ${selectedSlot.heure.substring(0,5)})`,
+            name: `${service.name} (${t.onDate} ${formattedDate} ${t.atTime} ${formattedTime})`,
             price: service.basePrice,
-            quantity: 1, // Fixe à 1 (un utilisateur = une place selon ta BDD)
+            quantity: 1, 
             image: service.image
         };
 
         setCartItems([...cartItems, serviceCartItem]);
-        history.push('/cart'); // Redirection vers le panier
+        history.push('/cart'); 
     };
 
-    if (loading) return <div className="loading">Chargement des disponibilités...</div>;
-    if (!service) return <div className="error">Prestation introuvable.</div>;
+    if (loading) return <div className="loading">{t.loading}</div>;
+    if (!service) return <div className="error">{t.error}</div>;
 
     const availableSlotsToday = getSlotsForSelectedDate();
 
     return (
-        <div className="home">
+        <div className={`home ${theme === 'dark' ? 'dark-mode' : ''}`}>
             <Header />
             <div className="service-detail-wrapper">
                 
-                {/* En-tête : Présentation de la prestation */}
-                <div className="service-hero">
+                <div className="service-hero" style={{backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)'}}>
                     <img src={service.image} alt={service.name} className="service-hero-img" />
                     <div className="service-hero-content">
-                        <h1>{service.name}</h1>
-                        <p className="service-desc">{service.description}</p>
+                        <h1 style={{color: 'var(--text-color)'}}>{service.name}</h1>
+                        <p className="service-desc" style={{color: 'var(--text-color)'}}>{service.description}</p>
                         <div className="service-badges">
-                            <span className="badge">⏱️ {service.defaultDuration} minutes</span>
-                            <span className="badge">💶 À partir de {Number(service.basePrice).toFixed(2)}€</span>
+                            <span className="badge">⏱️ {service.defaultDuration} {t.minutes}</span>
+                            <span className="badge">💶 {t.startingAt} {formatPrice(service.basePrice)}</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Section Réservation : Calendrier + Créneaux */}
                 <div className="booking-section">
-                    <h2>Réserver votre session</h2>
+                    <h2 style={{color: 'var(--text-color)'}}>{t.bookSession}</h2>
                     
                     <div className="booking-grid">
-                        {/* Colonne Gauche : Calendrier */}
                         <div className="calendar-container">
                             <Calendar 
                                 onChange={handleDateChange} 
                                 value={selectedDate}
-                                minDate={new Date()} // Empêche de sélectionner le passé
+                                minDate={new Date()} 
                                 className="custom-calendar"
+                                locale={language === 'fr' ? 'fr-FR' : 'en-US'}
                             />
                         </div>
 
-                        {/* Colonne Droite : Créneaux horaires */}
-                        <div className="slots-container">
-                            <h3>Disponibilités le {selectedDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</h3>
+                        <div className="slots-container" style={{backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)'}}>
+                            <h3 style={{color: 'var(--text-color)'}}>{t.availabilitiesOn} {selectedDate.toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' })}</h3>
                             
                             {availableSlotsToday.length === 0 ? (
-                                <div className="no-slots">Aucune session prévue à cette date.</div>
+                                <div className="no-slots" style={{color: 'var(--text-color)'}}>{t.noSlots}</div>
                             ) : (
                                 <div className="slots-grid">
                                     {availableSlotsToday.map(slot => (
@@ -141,19 +182,18 @@ function ServiceDetail() {
                                         >
                                             <span className="slot-time">{slot.heure.substring(0, 5)}</span>
                                             <span className="slot-places">
-                                                {slot.placesRestantes > 0 ? `${slot.placesRestantes} places` : 'Complet'}
+                                                {slot.placesRestantes > 0 ? `${slot.placesRestantes} ${t.places}` : t.full}
                                             </span>
                                         </button>
                                     ))}
                                 </div>
                             )}
 
-                            {/* Bouton de confirmation (Apparaît si un créneau est choisi) */}
                             {selectedSlot && (
-                                <div className="booking-action">
-                                    <p>Vous avez sélectionné la session de <strong>{selectedSlot.heure.substring(0, 5)}</strong>.</p>
+                                <div className="booking-action" style={{backgroundColor: 'var(--bg-color)', borderTop: '1px solid var(--border-color)'}}>
+                                    <p style={{color: 'var(--text-color)'}}>{t.selectedSession} <strong>{selectedSlot.heure.substring(0, 5)}</strong>.</p>
                                     <button className="btn-confirm-booking" onClick={handleBooking}>
-                                        Continuer la réservation
+                                        {t.continueBooking}
                                     </button>
                                 </div>
                             )}
@@ -166,5 +206,4 @@ function ServiceDetail() {
         </div>
     );
 }
-
 export default ServiceDetail;

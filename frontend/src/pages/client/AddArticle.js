@@ -1,41 +1,54 @@
 import Combobox from "react-widgets/Combobox"
 import Header from "../../components/client/Header";
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { PreferencesContext } from '../../context/PreferencesContextProvider';
 import "react-widgets/styles.css";
 import "../../styles/addArticle.css";
 
-function AddArticle() {
+const translations = {
+    fr: {
+        title: "Formulaire de création d'un article",
+        name: "Nom du produit", desc: "Description du produit", price: "Prix de base (EUR)",
+        qty: "Quantité en stock", imgUrl: "URL de l'image", type: "Type d'article",
+        board: "Planche de surf", wetsuit: "Combinaison", weight: "Poids",
+        volume: "Volume", maxWeight: "Poids maximum supporté", stability: "Stabilité",
+        maneuverability: "Maniabilité", leash: "Leash", size: "Taille",
+        material: "Matière", neoprene: "Néoprène", yulex: "Yulex",
+        tempMin: "Température minimale", tempMax: "Température maximale",
+        antiUv: "Anti-UV", add: "Ajouter", none: "---"
+    },
+    en: {
+        title: "Item Creation Form",
+        name: "Product Name", desc: "Product Description", price: "Base Price (EUR)",
+        qty: "Stock Quantity", imgUrl: "Image URL", type: "Item Type",
+        board: "Surfboard", wetsuit: "Wetsuit", weight: "Weight",
+        volume: "Volume", maxWeight: "Max Supported Weight", stability: "Stability",
+        maneuverability: "Maneuverability", leash: "Leash", size: "Size",
+        material: "Material", neoprene: "Neoprene", yulex: "Yulex",
+        tempMin: "Minimum Temperature", tempMax: "Maximum Temperature",
+        antiUv: "Anti-UV", add: "Add", none: "---"
+    }
+};
 
-    const [typeArticle, setTypeArticle] = useState("---");
-    const [materialWetsuit, setMaterialWetsuit] = useState("---");
+function AddArticle() {
+    const { language, theme } = useContext(PreferencesContext);
+    const t = translations[language] || translations.fr;
+
+    const [typeArticle, setTypeArticle] = useState(t.none);
+    const [materialWetsuit, setMaterialWetsuit] = useState(t.none);
     const [image, setImage] = useState(null);
     const [article, setArticle] = useState({
-        name: '',
-        price: 0,
-        description: '',
-        image: '',
-        onSale: false
+        name: '', price: 0, description: '', image: '', onSale: false
     });
 
     const handleInputChange = (e) => {
         const {name, value} = e.target;
-        setArticle(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
+        setArticle(prevState => ({ ...prevState, [name]: value }));
     }
 
-    const handleTypeArticleChange = (value) => {
-        setTypeArticle(value);
-    }
-
-    const handleMaterialWetsuitChange = (value) => {
-        setMaterialWetsuit(value);
-    }
-
-    const handleImageChange = (e) => {
-        setImage(e.target.files[0]);
-    };
+    const handleTypeArticleChange = (value) => setTypeArticle(value);
+    const handleMaterialWetsuitChange = (value) => setMaterialWetsuit(value);
+    const handleImageChange = (e) => setImage(e.target.files[0]);
 
     const handleAddItem = async () => {
         let finalImageUrl = article.image;
@@ -56,7 +69,6 @@ function AddArticle() {
         }
 
         const articleToSave = { ...article, image:finalImageUrl, leash: false, material: materialWetsuit };
-        console.log(articleToSave);
 
         fetch('http://localhost:3001/article', {
             method: 'POST',
@@ -65,104 +77,90 @@ function AddArticle() {
         })
         .then(response => response.json())
         .then(data => {
-            console.log("Ajout effectué en BDD")
-            setArticle(null);
+            console.log("Ajout effectué en BDD");
+            // Optionnel : un petit feedback ici serait top
         })
         .catch(error => {
             console.error('Erreur lors de la création de l\'article : ', error);
         })
-
     }
 
     return(
-       <div>
+       <div className={theme === 'dark' ? 'dark-mode' : ''}>
         <Header/>
         <main className="detail-wrapper">
             <div className="add-article-form-card">
                 <div className="flex-column">
-                    <h1>Formulaire de création d'un article</h1>
+                    <h1>{t.title}</h1>
 
-                    <label>Nom du produit</label>
+                    <label>{t.name}</label>
                     <input type="text" name="name" onChange={handleInputChange} className="detail-input"></input>
 
-                    <label>Description du produit</label>
+                    <label>{t.desc}</label>
                     <input type="text" name="description" onChange={handleInputChange} className="detail-input"></input>
 
-                    <label>Prix</label>
+                    <label>{t.price}</label>
                     <input type="number" name="price" onChange={handleInputChange} className="detail-input"></input>
 
-                    <label>Quantité en stock</label>
+                    <label>{t.qty}</label>
                     <input type="number" name="amount" onChange={handleInputChange} className="detail-input"></input>
 
-                    <label>URL de l'image</label>
+                    <label>{t.imgUrl}</label>
                     <input type="file" name="image" onChange={handleImageChange} className="detail-input"/>
 
-                    <label>Type d'article</label>
-                    <Combobox defaultValue="---" data={["Planche de surf", "Combinaison"]} onChange={handleTypeArticleChange} className="combobox" />
+                    <label>{t.type}</label>
+                    <Combobox defaultValue={t.none} data={[t.board, t.wetsuit]} onChange={handleTypeArticleChange} className="combobox" />
 
-                    {typeArticle === "Planche de surf" && (
+                    {typeArticle === t.board && (
                         <div className="flex-column">
-                            <label>Poids</label>
+                            <label>{t.weight}</label>
                             <input type="number" name="weight" onChange={handleInputChange} className="detail-input"></input>  
 
-                            <label>Volume</label>
+                            <label>{t.volume}</label>
                             <input type="number" name="volume" onChange={handleInputChange} className="detail-input"></input> 
 
-                            <label>Poids maximum supporté</label>
+                            <label>{t.maxWeight}</label>
                             <input type="number" name="maxWeight" onChange={handleInputChange} className="detail-input"></input>  
 
-                            <label>Stabilité</label>
+                            <label>{t.stability}</label>
                             <input type="number" name="stability" onChange={handleInputChange} className="detail-input"></input> 
 
-                            <label>Maniabilité</label>
+                            <label>{t.maneuverability}</label>
                             <input type="number" name="maneuverability" onChange={handleInputChange} className="detail-input"></input> 
 
-                            <label>Leash</label>
+                            <label>{t.leash}</label>
                             <input type="checkbox" name="leash" onChange={handleInputChange} className="detail-input"></input> 
-
                         </div>
-                        
                     )}
 
-                    {typeArticle === "Combinaison" && (
+                    {typeArticle === t.wetsuit && (
                         <div className="flex-column">
-                            
-                            <label>Taille</label>
+                            <label>{t.size}</label>
                             <div className="radio-button-group">
-                                <input type="radio" id="XS" name="taille" value="XS" onChange={handleInputChange} className="hidden-radio" />
-                                <label htmlFor="XS" className="radio-button-label">XS</label>
-
-                                <input type="radio" id="S" name="taille" value="S" onChange={handleInputChange} className="hidden-radio" />
-                                <label htmlFor="S" className="radio-button-label">S</label>
-
-                                <input type="radio" id="M" name="taille" value="M" onChange={handleInputChange} className="hidden-radio" />
-                                <label htmlFor="M" className="radio-button-label">M</label>
-
-                                <input type="radio" id="L" name="taille" value="L" onChange={handleInputChange} className="hidden-radio" />
-                                <label htmlFor="L" className="radio-button-label">L</label>
-
-                                <input type="radio" id="XL" name="taille" value="XL" onChange={handleInputChange} className="hidden-radio" />
-                                <label htmlFor="XL" className="radio-button-label">XL</label>
+                                {['XS', 'S', 'M', 'L', 'XL'].map(size => (
+                                    <div key={size} style={{display: 'inline-block'}}>
+                                        <input type="radio" id={size} name="taille" value={size} onChange={handleInputChange} className="hidden-radio" />
+                                        <label htmlFor={size} className="radio-button-label">{size}</label>
+                                    </div>
+                                ))}
                             </div>
                             
+                            <label>{t.material}</label>
+                            <Combobox defaultValue={t.none} data={[t.neoprene, t.yulex]} onChange={handleMaterialWetsuitChange} className="combobox" />
 
-                            <label>Matière</label>
-                            <Combobox defaultValue="---" data={["Néoprène", "Yulex"]} onChange={handleMaterialWetsuitChange} className="combobox" />
-
-                            <label>Température minimale</label>
+                            <label>{t.tempMin}</label>
                             <input type="number" name="tempMin" onChange={handleInputChange} className="detail-input"></input> 
 
-                            <label>Température maximale</label>
+                            <label>{t.tempMax}</label>
                             <input type="number" name="tempMax" onChange={handleInputChange} className="detail-input"></input> 
 
-                            <label>Anti-UV</label>
+                            <label>{t.antiUv}</label>
                             <input type="checkbox" name="antiUV" onChange={handleInputChange} className="detail-input"></input> 
-
                         </div>
                     )}
 
                     <div className="center-container">
-                        <button onClick={handleAddItem} className="button btn-save">Ajouter</button>
+                        <button onClick={handleAddItem} className="button btn-save">{t.add}</button>
                     </div>
 
                 </div>

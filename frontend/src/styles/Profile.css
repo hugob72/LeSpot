@@ -8,7 +8,7 @@
 
 .profile-header {
     margin-bottom: 30px;
-    border-bottom: 2px solid #F7E7CE;
+    border-bottom: 2px solid var(--accent-color);
     padding-bottom: 15px;
     display: flex;
     justify-content: space-between;
@@ -138,7 +138,7 @@
 }
 
 .btn-secondary {
-    background-color: #f2e3d0; 
+    background-color: var(--accent-color); 
     color: #333;
     padding: 12px 20px;
     border: none;
@@ -150,7 +150,7 @@
 }
 
 .btn-secondary:hover {
-    background-color: #e6d3bb;
+    background-color: var(--button-hover-color);
 }
 
 .btn-danger {

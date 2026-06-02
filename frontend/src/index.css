@@ -1,8 +1,16 @@
+:root {
+  --accent-color: #F7E7CE;
+  --button-hover-color : #e1c9a3;
+}
+
 body.dark-mode {
-  --bg-color: #1a202c;
-  --text-color: #e2e8f0;
-  --card-bg: #2d3748;
-  --border-color: #4a5568;
+  --accent-color: #f4cc8c;
+  --button-hover-color : #e1c9a3;
+}
+
+body.water-mode {
+  --accent-color: #76c9db;
+  --button-hover-color: #2a879c;
 }
 
 body {
@@ -30,7 +38,7 @@ a {
 }
 
 .button {
-    background-color: #F7E7CE;
+    background-color: var(--accent-color);
     color: #5a4a42;
     border: none;
     border-radius: 8px;
@@ -39,7 +47,7 @@ a {
 }
 
 .button:hover {
-    background-color: #e1c9a3;
+    background-color: var(--button-hover-color);
     color: #392e28;
 }
 

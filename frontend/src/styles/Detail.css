@@ -57,7 +57,7 @@ h1 {
 }
 
 .product-price {
-    background-color: #F7E7CE;
+    background-color: var(--accent-color);
     width: fit-content;
     padding: 1% 2%;
     font-size: 1.5rem;

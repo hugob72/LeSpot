@@ -31,7 +31,7 @@
 }
 
 .admin-table th {
-    background-color: #F7E7CE;
+    background-color: var(--accent-color);
     color: #555;
     font-weight: 600;
     padding: 15px;

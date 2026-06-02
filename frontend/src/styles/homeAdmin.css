@@ -8,7 +8,7 @@
 
 .admin-sidebar {
     width: 12%;
-    background-color: #F7E7CE;
+    background-color: var(--accent-color);
     display: flex;
     flex-direction: column;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
@@ -39,7 +39,7 @@
 }
 
 .admin-menu-item:hover {
-    background-color: #e1c9a3;
+    background-color: var(--button-hover-color);
 }
 
 .admin-main-area {

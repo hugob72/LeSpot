@@ -1,8 +1,31 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { PreferencesContext } from '../../context/PreferencesContextProvider';
 import '../../styles/article.css'
+
+const exchangeRates = { EUR: 1, USD: 1.08, GBP: 0.85 };
+const symbols = { EUR: '€', USD: '$', GBP: '£' };
+
+const translations = {
+    fr: {
+        sale: "Solde",
+        addToCart: "Ajouter au panier"
+    },
+    en: {
+        sale: "Sale",
+        addToCart: "Add to cart"
+    }
+};
 
 function Article(props) {
     const {cartItems, setCartItems, article} = props;
+    const { language, currency } = useContext(PreferencesContext);
+    const t = translations[language] || translations.fr;
+
+    // Fonction de formatage de la devise
+    const formatPrice = (priceInEuros) => {
+        const converted = priceInEuros * exchangeRates[currency];
+        return `${converted.toFixed(2)}${symbols[currency]}`;
+    };
 
     function addArticle(e, article) {
         e.preventDefault(); 
@@ -20,19 +43,20 @@ function Article(props) {
             <div className="card">
                 {article.onSale === 1 &&
                     <div className="promo"> 
-                        <p>Solde</p>
+                        <p>{t.sale}</p>
                     </div>
                 }
                 
                 <img src={article.image} alt={article.name} className="card-image"/>
                 
                 <div className="card-content">
-                    <p className="card-price">{article.price}€</p>
+                    {/* On utilise formatPrice ici */}
+                    <p className="card-price">{formatPrice(article.price)}</p>
                     <p className="truncate">{article.name}</p>
                 </div>
                 
                 <div className="area-button">
-                    <button className="button" onClick={(e) => addArticle(e, article)}>Ajouter au panier</button>
+                    <button className="button" onClick={(e) => addArticle(e, article)}>{t.addToCart}</button>
                 </div>
             </div>
         </a>

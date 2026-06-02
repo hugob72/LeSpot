@@ -12,7 +12,7 @@
   font-size: 1.5rem;
   margin-top: 0;
   /* border-bottom: 2px solid #3d99a6; */
-  border-bottom: 2px solid #F7E7CE;
+  border-bottom: 2px solid var(--accent-color);
   padding-bottom: 10px;
 }
 

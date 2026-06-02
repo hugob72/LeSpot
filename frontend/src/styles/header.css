@@ -4,15 +4,12 @@ a {
 }
 
 .header {
+    height: 70px;
     display: flex;
     align-items: center;
-    background-color: #F7E7CE;
-    padding: 0 20px; /* Ajout d'un peu de padding pour ne pas coller aux bords */
-    position: relative; /* Important pour le positionnement du mini-panier */
-}
-
-.header.dark-mode {
-    background-color: #f4cc8c;
+    padding: 0 20px;
+    position: relative;
+    background-color: var(--accent-color, #F7E7CE);
 }
 
 .header h1 {
@@ -22,9 +19,9 @@ a {
 
 .nav-links {
     display: flex;
-    color: #5a4a42;
+    color: var(--text-color, #5a4a42);
     list-style-type: none;
-    gap: 2rem; /* Réduit un peu pour faire de la place au panier */
+    gap: 2rem;
     margin-left: 20px;
     padding: 0;
 }
@@ -36,18 +33,103 @@ a {
 }
 
 .nav-links li:hover {
-    background-color: #e1c9a3;
+    background-color: var(--button-hover-color, rgba(0,0,0,0.05));
 }
 
 .logo {
-    width: 50px; /* Taille fixe plutôt qu'un % pour éviter les déformations */
+    width: 50px;
     height: auto;
 }
 
-/* --- ZONE DU PANIER (NOUVEAU) --- */
+/* --- ZONE DES ICÔNES DROITES (COMPTE + PANIER) --- */
+.header-icons-wrapper {
+    margin-left: auto; /* Pousse les icônes tout à droite */
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    height: 100%;
+}
 
+/* --- ICÔNE DE COMPTE ET MENU DÉROULANT --- */
+.account-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 10px 0;
+}
+
+.account-icon {
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    color: var(--text-color, #5a4a42);
+    transition: transform 0.2s;
+}
+
+.account-icon:hover {
+    transform: scale(1.1);
+}
+
+/* Le bloc du menu déroulant */
+.account-dropdown {
+    position: absolute;
+    top: 100%; /* S'affiche juste sous le header */
+    right: -10px; /* Aligné par rapport à l'icône */
+    width: 240px;
+    background-color: var(--card-bg, #ffffff);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    z-index: 1000;
+    border: 1px solid var(--border-color, #eee);
+    overflow: hidden;
+    
+    /* Animation de Slide + Fade */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(15px);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Apparaît quand isAccountOpen est true */
+.account-dropdown.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.account-dropdown-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.account-dropdown-list li a, 
+.account-dropdown-list li.logout-btn {
+    display: block;
+    padding: 12px 20px;
+    color: var(--text-color, #333);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 0.95rem;
+}
+
+.account-dropdown-list li a:hover, 
+.account-dropdown-list li.logout-btn:hover {
+    background-color: var(--bg-color, #f1f5f9);
+}
+
+.account-dropdown-list li.logout-btn {
+    border-top: 1px solid var(--border-color, #eee);
+    color: #ef4444; /* Rouge pour la déconnexion */
+    font-weight: bold;
+}
+
+/* --- ICÔNE DU PANIER --- */
 .cart-icon-wrapper {
-    margin-left: auto; /* Pousse l'icône tout à droite du Header */
     position: relative;
     display: flex;
     align-items: center;
@@ -60,7 +142,7 @@ a {
     cursor: pointer;
     width: 30px;
     height: 30px;
-    color: #5a4a42;
+    color: var(--text-color, #5a4a42);
     transition: transform 0.2s;
 }
 
@@ -85,118 +167,4 @@ a {
     padding: 0 4px;
     box-sizing: border-box;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-/* --- MINI PANIER / VOLET COULISSANT --- */
-
-.mini-cart-dropdown {
-    position: absolute;
-    top: 100%; /* Se place juste en dessous du header */
-    right: 0;
-    width: 320px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    padding: 20px;
-    z-index: 1000;
-    border: 1px solid #eee;
-    
-    /* Animation de Slide + Fade */
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(15px); /* Part légèrement d'en bas */
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-/* Classe ajoutée dynamiquement par React au survol */
-.mini-cart-dropdown.open {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-
-.mini-cart-dropdown h3 {
-    margin: 0 0 15px 0;
-    font-size: 1.1rem;
-    color: #333;
-    border-bottom: 2px solid #F7E7CE;
-    padding-bottom: 10px;
-}
-
-.mini-cart-empty {
-    color: #888;
-    text-align: center;
-    margin: 20px 0;
-}
-
-.mini-cart-items {
-    max-height: 250px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 15px;
-}
-
-.mini-cart-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9rem;
-    border-bottom: 1px solid #f5f5f5;
-    padding-bottom: 8px;
-}
-
-.mini-cart-item-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.mini-cart-item-name {
-    font-weight: bold;
-    color: #333;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 180px;
-}
-
-.mini-cart-item-qty {
-    color: #777;
-    font-size: 0.8rem;
-}
-
-.mini-cart-item-price {
-    font-weight: bold;
-    color: #48A3AE;
-}
-
-.mini-cart-footer {
-    border-top: 2px solid #eee;
-    padding-top: 15px;
-}
-
-.mini-cart-total {
-    display: flex;
-    justify-content: space-between;
-    font-weight: bold;
-    font-size: 1.1rem;
-    margin-bottom: 15px;
-    color: #333;
-}
-
-.btn-view-cart {
-    width: 100%;
-    background-color: #48A3AE;
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.btn-view-cart:hover {
-    background-color: #36828b;
 }
