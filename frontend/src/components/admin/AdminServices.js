@@ -5,40 +5,26 @@ import "../../styles/adminStock.css";
 function AdminServices() {
     const [slotsList, setSlotsList] = useState([]);
     const [displayedSlots, setDisplayedSlots] = useState([]);
-    const [catalog, setCatalog] = useState([]); // Pour le filtre prestation
-    
-    // États pour les filtres
+    const [catalog, setCatalog] = useState([]);
     const [filterDate, setFilterDate] = useState('');
     const [filterType, setFilterType] = useState('');
-
     const history = useHistory();
 
-    const fetchData = () => {
-        // 1. Récupération des créneaux (Agenda)
+    useEffect(() => {
         fetch('http://localhost:3001/admin/services')
             .then(response => response.json())
             .then(data => {
-                if (Array.isArray(data)) {
                     setSlotsList(data);
                     setDisplayedSlots(data);
-                }
             })
-            .catch(error => console.error('Erreur récupération des créneaux :', error));
+            .catch(error => alert('Erreur récupération des créneaux :', error));
 
-        // 2. Récupération des prestations (Catalogue) pour alimenter le filtre
         fetch('http://localhost:3001/catalog/services')
             .then(response => response.json())
-            .then(data => {
-                if (Array.isArray(data)) setCatalog(data);
-            })
-            .catch(error => console.error('Erreur récupération catalogue :', error));
-    };
-
-    useEffect(() => {
-        fetchData();
+            .then(data => {setCatalog(data);})
+            .catch(error => alert('Erreur récupération catalogue :', error));
     }, []);
 
-    // Logique de filtrage en temps réel
     useEffect(() => {
         let filtered = slotsList.filter(slot => {
             const slotDateStr = slot.date ? new Date(slot.date).toISOString().split('T')[0] : '';
@@ -69,7 +55,7 @@ function AdminServices() {
                 alert("Suppression effectuée avec succès.");
                 setSlotsList(slotsList.filter(slot => slot.idService !== id));
             })
-            .catch(error => console.error('Erreur lors de la suppression : ', error));
+            .catch(error => alert('Erreur lors de la suppression : ', error));
         }
     }
 
@@ -93,34 +79,21 @@ function AdminServices() {
                 <button className="admin-btn-add" onClick={navigateToAddService}>Ajouter un créneau</button>
             </div>
             
-            {/* BARRE DE FILTRES */}
             <div className="admin-filters-bar">
                 <div className="admin-filter-group">
                     <label>Filtrer par Date :</label>
-                    <input 
-                        type="date" 
-                        value={filterDate} 
-                        onChange={(e) => setFilterDate(e.target.value)} 
-                        className="admin-filter-input" 
-                    />
+                    <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="admin-filter-input" />
                 </div>
                 <div className="admin-filter-group">
                     <label>Filtrer par Prestation :</label>
-                    <select 
-                        value={filterType} 
-                        onChange={(e) => setFilterType(e.target.value)} 
-                        className="admin-filter-input"
-                    >
+                    <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="admin-filter-input">
                         <option value="">Toutes les prestations</option>
-                        {catalog.map(c => (
-                            <option key={c.idTypeService} value={c.idTypeService}>{c.name}</option>
-                        ))}
+                        {catalog.map(c => (<option key={c.idTypeService} value={c.idTypeService}>{c.name}</option>))}
                     </select>
                 </div>
                 <button className="admin-btn-reset" onClick={resetFilters}>Réinitialiser</button>
             </div>
 
-            {/* TABLEAU OU MESSAGE DE RÉSULTAT VIDE */}
             <div className="table-responsive">
                 {displayedSlots.length === 0 ? (
                     <div className="admin-no-results">
@@ -148,7 +121,7 @@ function AdminServices() {
                                         <td className="admin-table-name">{slot.typeName}</td>
                                         <td>{formatDateTime(slot.date, slot.heure)}</td>
                                         <td>{slot.duree} min</td>
-                                        <td>{Number(slot.price).toFixed(2)} €</td>
+                                        <td>{slot.price} €</td>
                                         <td>
                                             <span className={`stock-badge ${isFull ? 'out-of-stock' : 'in-stock'}`}>
                                                 {slot.inscrits} / {slot.numberParticipants}

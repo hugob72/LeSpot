@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useHistory } from 'react-router-dom';
-import "../../styles/addArticle.css"; // On garde ton CSS global
+import "../../styles/addArticle.css";
 
 function AddService() {
     const { idService } = useParams();
@@ -11,19 +11,17 @@ function AddService() {
         idTypeService: '',
         date: '',
         heure: '',
-        duree: 90,
-        price: 35,
-        numberParticipants: 8
+        duree: '',
+        price: '',
+        numberParticipants: ''
     });
 
     useEffect(() => {
-        // 1. Récupération du catalogue
         fetch('http://localhost:3001/catalog/services')
             .then(res => res.json())
             .then(data => setCatalog(Array.isArray(data) ? data : []))
-            .catch(err => console.error(err));
+            .catch(error => alert(error));
 
-        // 2. Récupération des données du créneau si on est en mode Modification
         if (idService) {
             fetch(`http://localhost:3001/admin/services/${idService}`)
                 .then(response => response.json())
@@ -37,7 +35,7 @@ function AddService() {
                         numberParticipants: data.numberParticipants
                     });
                 })
-                .catch(error => console.error('Erreur récupération du créneau :', error)); 
+                .catch(error => alert('Erreur récupération du créneau :', error)); 
         }
     }, [idService]);
 
@@ -55,17 +53,19 @@ function AddService() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(slot)
         })
-        .then(async response => {
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Erreur serveur');
-            
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => { 
+                    throw new Error(data.error || 'Erreur serveur'); 
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
             alert("Créneau ajouté avec succès à l'agenda !");
             history.push('/admin/services'); 
         })
-        .catch(error => {
-            console.error('Erreur création : ', error);
-            alert('Impossible de créer le créneau : ' + error.message);
-        });
+        .catch(error => {alert('Impossible de créer le créneau : ' + error.message);});
     };
 
     const handleChangeSlot = () => {
@@ -74,22 +74,23 @@ function AddService() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(slot)
         })
-        .then(async response => {
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Erreur serveur');
-            
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => { 
+                    throw new Error(data.error || 'Erreur serveur'); 
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
             alert("Créneau modifié avec succès !");
             history.push('/admin/services'); 
         })
-        .catch(error => {
-            console.error('Erreur modification : ', error);
-            alert('Impossible de modifier le créneau : ' + error.message);
-        });
+        .catch(error => {alert('Impossible de modifier le créneau : ' + error.message);});
     };
 
     return (
         <div>
-            {/* CORRECTION ICI : On a retiré le style={{...}} pour revenir au design de base */}
             <div className="flex-column">
                 <h1>Formulaire de {idService ? "modification": "création"} d'un créneau</h1>
 
@@ -114,11 +115,11 @@ function AddService() {
                 <label>Nombre de places maximum</label>
                 <input type="number" name="numberParticipants" onChange={handleInputChange} className="detail-input" value={slot.numberParticipants} required />
 
-                <div className="center-container" style={{ marginTop: '20px' }}>
+                <div className="center-container">
                     {idService ? 
                         <button onClick={handleChangeSlot} className="button btn-save">Modifier</button>
                     :
-                        <button onClick={handleAddSlot} className="button btn-save">Ajouter le créneau</button>
+                        <button onClick={handleAddSlot} className="button btn-save">Ajouter</button>
                     }
                 </div>
             </div>

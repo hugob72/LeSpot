@@ -8,7 +8,7 @@ function AddPromotion() {
     
     const [promo, setPromo] = useState({
         code: '',
-        rate: 10,
+        rate: null,
         description: '',
         conditions: '',
         dateDebut: '',
@@ -26,7 +26,7 @@ function AddPromotion() {
                         rate: data.rate,
                         description: data.description || '',
                         conditions: data.conditions || '',
-                        dateDebut: data.dateDebut.substring(0, 16), // Formatage pour datetime-local input (YYYY-MM-DDTHH:MM)
+                        dateDebut: data.dateDebut.substring(0, 16),
                         dateFin: data.dateFin.substring(0, 16),
                         isFeatured: data.isFeatured === 1
                     });
@@ -43,7 +43,6 @@ function AddPromotion() {
         }));
     };
 
-    // Validation des dates avant envoi
     const validateForm = () => {
         if (new Date(promo.dateDebut) >= new Date(promo.dateFin)) {
             alert("Erreur : La date de fin doit obligatoirement être après la date de début.");
@@ -57,41 +56,51 @@ function AddPromotion() {
     };
 
     const handleAddPromotion = () => {
-        if (!validateForm()) return;
-
-        fetch('http://localhost:3001/promotions', {
+        if (validateForm()) {
+           fetch('http://localhost:3001/promotions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(promo)
         })
-        .then(async response => {
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Erreur serveur');
-            
-            alert("Code promotionnel créé et enregistré avec succès !");
-            history.push('/admin/litiges'); // Astuce temporaire ou redirige vers ta page principale de gestion
-            // On va configurer la route propre dans HomeAdmin juste après
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => { 
+                    throw new Error(data.error || 'Erreur serveur'); 
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            alert("Code promotionnel créé avec succès !");
             history.push('/admin/promotions');
         })
-        .catch(error => alert(error.message));
+        .catch(error => alert(error.message)); 
+        }
+    
     };
 
     const handleChangePromotion = () => {
-        if (!validateForm()) return;
-
-        fetch(`http://localhost:3001/promotions/${idPromotion}`, {
+        if (validateForm()) {
+            fetch(`http://localhost:3001/promotions/${idPromotion}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(promo)
         })
-        .then(async response => {
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Erreur serveur');
-            
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => { 
+                    throw new Error(data.error || 'Erreur serveur'); 
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
             alert("Promotion modifiée avec succès !");
             history.push('/admin/promotions'); 
         })
         .catch(error => alert(error.message));
+        };
+
     };
 
     return (
@@ -105,11 +114,8 @@ function AddPromotion() {
                 <label>Taux de réduction (%)</label>
                 <input type="number" name="rate" min="1" max="100" onChange={handleInputChange} className="detail-input" value={promo.rate} required />
 
-                <label>Description (Affichée sur le site)</label>
+                <label>Description</label>
                 <input type="text" name="description" onChange={handleInputChange} className="detail-input" value={promo.description} placeholder="Ex: -20% sur tout le site pour fêter l'été" />
-
-                <label>Conditions d'utilisation (Optionnel)</label>
-                <input type="text" name="conditions" onChange={handleInputChange} className="detail-input" value={promo.conditions} placeholder="Ex: Dès 50€ d'achat" />
 
                 <label>Date et heure de début</label>
                 <input type="datetime-local" name="dateDebut" onChange={handleInputChange} className="detail-input" value={promo.dateDebut} required />
@@ -117,16 +123,16 @@ function AddPromotion() {
                 <label>Date et heure de fin</label>
                 <input type="datetime-local" name="dateFin" onChange={handleInputChange} className="detail-input" value={promo.dateFin} required />
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '15px' }}>
-                    <input type="checkbox" name="isFeatured" id="isFeatured" onChange={handleInputChange} checked={promo.isFeatured} style={{ width: '20px', height: '20px' }} />
+                <div>
+                    <input type="checkbox" name="isFeatured" id="isFeatured" onChange={handleInputChange} checked={promo.isFeatured} />
                     <label htmlFor="isFeatured" style={{ margin: 0, fontWeight: 'bold' }}>Mettre en avant sur la page des promotions</label>
                 </div>
 
-                <div className="center-container" style={{ marginTop: '30px' }}>
+                <div className="center-container">
                     {idPromotion ? 
                         <button onClick={handleChangePromotion} className="button btn-save">Modifier</button>
                     :
-                        <button onClick={handleAddPromotion} className="button btn-save">Créer l'offre</button>
+                        <button onClick={handleAddPromotion} className="button btn-save">Créer</button>
                     }
                 </div>
             </div>

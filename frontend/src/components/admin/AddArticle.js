@@ -1,5 +1,4 @@
 import Combobox from "react-widgets/Combobox"
-import Header from "../../components/client/Header";
 import { useState, useEffect } from "react";
 import { useParams, useHistory } from 'react-router-dom';
 import "react-widgets/styles.css";
@@ -21,30 +20,33 @@ function AddArticle() {
 
     useEffect(() => {
         if (idArticle) {
-           fetch(`http://localhost:3001/${idArticle}`)
+           fetch(`http://localhost:3001/article/${idArticle}`)
             .then(response => response.json())
             .then(data => {
                 setArticle({
                     ...data,
                     leash: data.withLeash === 1,
                     antiUV: data.isAntiUV === 1,
-                    onSale: data.onSale === 1, // <--- NOUVEAU : Traduction de la BDD vers le booléen Front
+                    onSale: data.onSale === 1,
                     maxWeight: data.maxSupportedWeight,
                     taille: data.size
                 });
                 
-                if (data.material) setMaterialWetsuit(data.material);
+                if (data.material) {
+                    setMaterialWetsuit(data.material);
+                } 
 
-                if (data.withLeash !== null && data.withLeash !== undefined) setTypeArticle("Planche de surf");
-                else if (data.isAntiUV !== null && data.isAntiUV !== undefined) setTypeArticle("Combinaison");
-                else setTypeArticle("---");
+                if (data.withLeash !== null && data.withLeash !== undefined) {
+                    setTypeArticle("Planche de surf");
+                } else if (data.isAntiUV !== null && data.isAntiUV !== undefined) {
+                    setTypeArticle("Combinaison");
+                } else setTypeArticle("---");
             })
             .catch(error => console.error('Erreur :', error)); 
         }
     }, [idArticle]);
 
 
-    // CORRECTION : Prise en compte des checkboxes pour avoir un vrai booléen
     const handleInputChange = (e) => {
         const { name, type, checked, value } = e.target;
         setArticle(prevState => ({
@@ -53,15 +55,20 @@ function AddArticle() {
         }));
     }
 
-    const handleTypeArticleChange = (value) => setTypeArticle(value);
-    const handleMaterialWetsuitChange = (value) => setMaterialWetsuit(value);
-    const handleImageChange = (e) => setImage(e.target.files[0]);
+    const handleTypeArticleChange = (value) => {
+        setTypeArticle(value)
+    };
 
-    // Fonction d'AJOUT (POST)
+    const handleMaterialWetsuitChange = (value) => {
+        setMaterialWetsuit(value)
+    };
+
+    const handleImageChange = (e) => {
+        setImage(e.target.files[0])
+    };
+
     const handleAddItem = async () => {
         let finalImageUrl = article.image;
-        
-        // CORRECTION : On upload seulement si un fichier a réellement été sélectionné
         if (image) {
             const formData = new FormData();
             formData.append('image', image);
@@ -74,11 +81,10 @@ function AddArticle() {
                 finalImageUrl = uploadData.imageUrl || uploadData.image; 
             } catch (error) {
                 console.error('Erreur upload image:', error);
-                return; // On stop si l'upload plante
+                return;
             }
         }
 
-        // CORRECTION : Suppression du leash "false" hardcodé
         const articleToSave = { ...article, image: finalImageUrl, material: materialWetsuit };
 
         fetch('http://localhost:3001/article', {
@@ -87,10 +93,6 @@ function AddArticle() {
             body: JSON.stringify(articleToSave)
         })
         .then(async response => {
-            const data = await response.json();
-            // CORRECTION : On vérifie que la requête a réussi avant de rediriger
-            if (!response.ok) throw new Error(data.error || 'Erreur serveur');
-            
             alert("Article ajouté avec succès !");
             history.push('/admin/stock');
         })
@@ -100,7 +102,6 @@ function AddArticle() {
         });
     }
 
-    // Fonction de MODIFICATION (PUT)
     const handleChangeItem = async () => {
         let finalImageUrl = article.image;
         if (image) {
@@ -121,16 +122,12 @@ function AddArticle() {
 
         const articleToSave = { ...article, image: finalImageUrl };
 
-        // CORRECTION : On cible bien l'ID de l'article dans l'URL
-        fetch(`http://localhost:3001/${idArticle}`, {
+        fetch(`http://localhost:3001/article/${idArticle}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(articleToSave)
         })
         .then(async response => {
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Erreur serveur');
-            
             alert("Article modifié avec succès !");
             history.push('/admin/stock');
         })
@@ -151,10 +148,11 @@ function AddArticle() {
             <label>Description du produit</label>
             <input type="text" name="description" onChange={handleInputChange} className="detail-input" value={article.description || ''}></input>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '15px', marginBottom: '15px', backgroundColor: '#fef2f2', padding: '15px', borderRadius: '8px', border: '1px dashed #fca5a5' }}>
+            <div>
                 <input type="checkbox" name="onSale" id="onSale" onChange={handleInputChange} checked={article.onSale || false} style={{ width: '20px', height: '20px', cursor: 'pointer' }} />
-                <label htmlFor="onSale" style={{ margin: 0, fontWeight: 'bold', color: '#ef4444', cursor: 'pointer' }}>Cet article est éligible aux réductions (en promotion)</label>
+                <label htmlFor="onSale">En promotion ?</label>
             </div>
+            <br/>
 
             <label>Prix</label>
             <input type="number" name="price" step="0.01" onChange={handleInputChange} className="detail-input" value={article.price || 0}></input>

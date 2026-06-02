@@ -51,7 +51,7 @@ function Detail() {
     }
 
     useEffect(() => {
-            fetch(`http://localhost:3001/${idArticle}`)
+            fetch(`http://localhost:3001/article/${idArticle}`)
                 .then(response => response.json())
                 .then(data => {
                     setArticle(data);
@@ -149,7 +149,7 @@ function Detail() {
         // 2. Update the product with the new data and the (possibly new) image URL
         const itemToSave = { ...updatedItem, image: finalImageUrl };
 
-        fetch(`http://localhost:3001/${idArticle}`, {
+        fetch(`http://localhost:3001/article/${idArticle}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(itemToSave)

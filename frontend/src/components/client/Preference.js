@@ -1,9 +1,9 @@
 import {useContext} from 'react';
-import {StyleContext} from '../../context/StyleContextProvider';
+import {PreferencesContext} from '../../context/PreferencesContextProvider';
 import '../../styles/preference.css';
 
 function Preference() {
-    const {theme, setTheme} = useContext(StyleContext);
+    const {theme, setTheme} = useContext(PreferencesContext);
     const ChangeTheme = (e) => { setTheme(e.target.checked); };
     return (
         <div className="preference-container">

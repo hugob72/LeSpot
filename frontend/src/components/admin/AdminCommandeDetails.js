@@ -10,7 +10,6 @@ function AdminCommandeDetails() {
     const history = useHistory();
     const [order, setOrder] = useState(null);
     const [status, setStatus] = useState("---");
-
     const statusOptions = [
         { id: 'en_attente', name: 'En attente' },
         { id: 'payee', name: 'Payée' },
@@ -31,9 +30,7 @@ function AdminCommandeDetails() {
                         setStatus(currentStatusOption.name);
                     }
                 })
-                .catch(error => {
-                    console.error('Erreur lors de la récupération de la commande :', error);
-                });
+                .catch(error => {alert('Erreur lors de la récupération de la commande :', error);});
         }
     }, [idOrder]);
 
@@ -42,26 +39,29 @@ function AdminCommandeDetails() {
     };
 
     const handleSaveStatus = () => {
-        // Retrieve internal status ID from name
         const selectedOption = statusOptions.find(opt => opt.name === status);
-        if (!selectedOption) return;
-
-        fetch(`http://localhost:3001/order/${idOrder}/status`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status: selectedOption.id })
-        })
-        .then(async response => {
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Erreur serveur');
-            
-            alert("Statut de la commande modifié avec succès !");
-            history.push('/admin/commandes');
-        })
-        .catch(error => {
-            console.error('Erreur lors de la modification : ', error);
-            alert('Impossible de modifier le statut : ' + error.message);
-        });
+        if (selectedOption) {
+            fetch(`http://localhost:3001/order/${idOrder}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: selectedOption.id })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => { 
+                        throw new Error(data.error || 'Erreur serveur'); 
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert("Statut de la commande modifié avec succès !");
+                history.push('/admin/commandes');
+            })
+            .catch(error => {
+                alert('Impossible de modifier le statut : ' + error.message);
+            });   
+        }
     };
 
     if (!order) {
@@ -102,13 +102,7 @@ function AdminCommandeDetails() {
                         
                         <div style={{ marginTop: '20px' }}>
                             <label style={{ fontWeight: 'bold' }}>Changer le statut :</label>
-                            <Combobox 
-                                data={statusOptions.map(opt => opt.name)} 
-                                value={status} 
-                                onChange={handleStatusChange} 
-                                className="combobox" 
-                                style={{ marginTop: '10px' }}
-                            />
+                            <Combobox data={statusOptions.map(opt => opt.name)} value={status} onChange={handleStatusChange} className="combobox" style={{ marginTop: '10px' }}/>
                             <button onClick={handleSaveStatus} className="button btn-save" style={{ marginTop: '15px', width: '100%' }}>Sauvegarder le statut</button>
                         </div>
                     </div>

@@ -8,7 +8,7 @@ import Preferences from './pages/client/Preferences';
 import Error from './pages/client/Error';
 import Login from './pages/client/Login';
 import Profile from './pages/client/Profile';
-import StyleContextProvider from './context/StyleContextProvider';
+import PreferencesContextProvider from './context/PreferencesContextProvider';
 import { CartContextProvider } from './context/CartContext';
 import AddArticle from './pages/client/AddArticle';
 import HomeAdmin from './pages/admin/HomeAdmin';
@@ -31,7 +31,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <CartContextProvider>
-      <StyleContextProvider>
+      <PreferencesContextProvider>
         <Router>
           <Switch>
             <Route exact path="/">
@@ -96,7 +96,7 @@ root.render(
             </Route>
           </Switch>
         </Router>
-      </StyleContextProvider>
+      </PreferencesContextProvider>
     </CartContextProvider>
   </React.StrictMode>
 );

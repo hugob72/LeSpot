@@ -21,7 +21,6 @@ function AdminComplaintDetail() {
     const [status, setStatus] = useState("---");
     const [loading, setLoading] = useState(true);
     const userId = localStorage.getItem('userId');
-
     const statusOptions = [
         { id: 'ouverte', name: 'Ouverte' },
         { id: 'en_cours', name: 'En cours' },
@@ -30,61 +29,43 @@ function AdminComplaintDetail() {
     ];
 
     useEffect(() => {
-        // Fetch complaint details
         fetch(`http://localhost:3001/complaint/${idComplaint}`)
             .then(res => res.json())
             .then(data => {
-                if (data.error) {
-                    alert(data.error);
-                } else {
-                    setComplaint(data);
-                    const currentStatusOption = statusOptions.find(opt => opt.id === data.state);
-                    if (currentStatusOption) {
-                        setStatus(currentStatusOption.name);
-                    }
-                }
+                setComplaint(data);
+                setStatus(statusOptions.find(opt => opt.id === data.state).name);
             })
-            .catch(err => console.error('Erreur:', err));
+            .catch(error => alert('Erreur:', error));
 
-        // Fetch complaint messages
         fetch(`http://localhost:3001/complaint/${idComplaint}/messages`)
             .then(res => res.json())
             .then(data => {
-                if (Array.isArray(data)) {
-                    setMessages(data);
-                } else {
-                    setMessages([]); 
-                }
+                setMessages(data || []);
                 setLoading(false);
             })
-            .catch(err => {
-                console.error('Erreur messages:', err);
-                setMessages([]);
+            .catch(error => {
+                console.error('Erreur messages:', error);
                 setLoading(false);
             });
     }, [idComplaint]);
 
     const handleSendMessage = (e) => {
         e.preventDefault();
-        if (!newMessage.trim()) return;
-
-        fetch(`http://localhost:3001/complaint/${idComplaint}/messages`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idUser: userId, message: newMessage })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.error) {
-                alert(data.error);
-            } else {
+        if (newMessage.trim()) {
+            fetch(`http://localhost:3001/complaint/${idComplaint}/messages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idUser: userId, message: newMessage })
+            })
+            .then(res => res.json())
+            .then(data => {
                 setNewMessage('');
                 fetch(`http://localhost:3001/complaint/${idComplaint}/messages`)
                     .then(res => res.json())
                     .then(msgData => setMessages(msgData));
-            }
-        })
-        .catch(err => console.error('Erreur envoi message:', err));
+            })
+            .catch(error => console.error('Erreur envoi message:', error));  
+        }
     };
 
     const handleStatusChange = (value) => {
@@ -93,24 +74,26 @@ function AdminComplaintDetail() {
 
     const handleSaveStatus = () => {
         const selectedOption = statusOptions.find(opt => opt.name === status);
-        if (!selectedOption) return;
-
-        fetch(`http://localhost:3001/complaint/${idComplaint}/state`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ state: selectedOption.id })
-        })
-        .then(async response => {
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Erreur serveur');
-            
-            alert("Statut de la réclamation modifié avec succès !");
-            setComplaint(prev => ({ ...prev, state: selectedOption.id }));
-        })
-        .catch(error => {
-            console.error('Erreur lors de la modification : ', error);
-            alert('Impossible de modifier le statut : ' + error.message);
-        });
+        if (selectedOption) {
+            fetch(`http://localhost:3001/complaint/${idComplaint}/state`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ state: selectedOption.id })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => { 
+                        throw new Error(data.error || 'Erreur serveur'); 
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert("Statut modifié avec succès !");
+                setComplaint(prev => ({ ...prev, state: selectedOption.id }));
+            })
+            .catch(error => {alert('Impossible de modifier le statut : ' + error.message);});
+        }
     };
 
     if (loading) return <div>Chargement...</div>;
@@ -130,8 +113,6 @@ function AdminComplaintDetail() {
                 </div>
 
                 <div className="complaint-grid-layout" style={{ maxWidth: '100%', margin: 0 }}>
-                    
-                    {/* Colonne de gauche : Informations */}
                     <div className="complaint-sidebar">
                         <div className="complaint-info-box">
                             <h3>{complaint.topic}</h3>
@@ -139,26 +120,18 @@ function AdminComplaintDetail() {
                                 {typeTraductions[complaint.type] || 'Non catégorisé'}
                             </p>
                             <p className="complaint-desc">{complaint.description}</p>
-                            <hr className="complaint-divider" />
+                            <hr className="complaint-divider"/>
                             <p className="complaint-meta"><strong>Ouverte par :</strong> {complaint.firstName} {complaint.lastName}</p>
                             {complaint.idOrder && <p className="complaint-meta"><strong>Commande liée :</strong> n°{complaint.idOrder}</p>}
                         </div>
 
-                        {/* Zone pour modifier le statut */}
-                        <div className="complaint-info-box" style={{ marginTop: '20px' }}>
+                        <div className="complaint-info-box">
                             <h3>Changer le statut</h3>
-                            <Combobox 
-                                data={statusOptions.map(opt => opt.name)} 
-                                value={status} 
-                                onChange={handleStatusChange} 
-                                className="combobox" 
-                                style={{ marginTop: '10px' }}
-                            />
+                            <Combobox data={statusOptions.map(opt => opt.name)} value={status} onChange={handleStatusChange} className="combobox" style={{ marginTop: '10px' }}/>
                             <button onClick={handleSaveStatus} className="button btn-save" style={{ marginTop: '15px', width: '100%' }}>Mettre à jour</button>
                         </div>
                     </div>
 
-                    {/* Colonne de droite : Messages */}
                     <div className="complaint-main-content">
                         <div className="complaint-messages-section">
                             <h3>Historique des échanges</h3>
@@ -171,7 +144,7 @@ function AdminComplaintDetail() {
                                         return (
                                             <div key={msg.idMessage} className={`message-item ${isCurrentUser ? 'message-right' : 'message-left'}`}>
                                                 <div className="message-content">
-                                                    <p className="message-text">{msg.content}</p>
+                                                    <p className="message-text" style={{color : isCurrentUser ? 'white' : '#333'}}>{msg.content}</p>
                                                     <span className="message-author">
                                                         {msg.firstName} {msg.lastName} {msg.role === 'admin' ? '(Admin)' : ''} - {new Date(msg.sendDate).toLocaleString('fr-FR')}
                                                     </span>
@@ -183,14 +156,7 @@ function AdminComplaintDetail() {
                             </div>
 
                             <form className="message-form" onSubmit={handleSendMessage}>
-                                <textarea
-                                    value={newMessage}
-                                    onChange={(e) => setNewMessage(e.target.value)}
-                                    placeholder="Répondre au client..."
-                                    required
-                                    rows="3"
-                                    className="message-textarea"
-                                ></textarea>
+                                <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Répondre au client..." required rows="3" className="message-textarea"></textarea>
                                 <button type="submit" className="btn-send-message">Envoyer le message</button>
                             </form>
                         </div>
@@ -201,5 +167,4 @@ function AdminComplaintDetail() {
         </div>
     );
 }
-
 export default AdminComplaintDetail;

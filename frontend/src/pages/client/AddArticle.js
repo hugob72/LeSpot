@@ -49,7 +49,6 @@ function AddArticle() {
                     body: formData
                 });
                 const uploadData = await uploadResponse.json();
-                // Assume server returns { imageUrl: "path/to/img.jpg" }
                 finalImageUrl = uploadData.imageUrl || uploadData.image; 
             } catch (error) {
                 console.error('Erreur upload image:', error);
@@ -89,7 +88,6 @@ function AddArticle() {
                     <label>Description du produit</label>
                     <input type="text" name="description" onChange={handleInputChange} className="detail-input"></input>
 
-                    {/* TODO : Vérification du décimal */}
                     <label>Prix</label>
                     <input type="number" name="price" onChange={handleInputChange} className="detail-input"></input>
 

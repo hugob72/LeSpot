@@ -7,7 +7,7 @@ function AdminStock() {
     const history = useHistory();
 
     useEffect(() => {
-        fetch('http://localhost:3001/')
+        fetch('http://localhost:3001/article/all')
             .then(response => response.json())
             .then(data => {
                 setItemsList(data);

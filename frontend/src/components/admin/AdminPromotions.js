@@ -6,17 +6,11 @@ function AdminPromotions() {
     const [promotionsList, setPromotionsList] = useState([]);
     const history = useHistory();
 
-    const fetchPromotions = () => {
+    useEffect(() => {
         fetch('http://localhost:3001/promotions')
             .then(response => response.json())
-            .then(data => {
-                if (Array.isArray(data)) setPromotionsList(data);
-            })
-            .catch(error => console.error('Erreur récupération des promotions :', error));
-    };
-
-    useEffect(() => {
-        fetchPromotions();
+            .then(data => {setPromotionsList(data);})
+            .catch(error => alert('Erreur récupération des promotions :', error));
     }, []);
 
     function navigateToAddPromotion() {
@@ -27,7 +21,6 @@ function AdminPromotions() {
         history.push('/admin/add-promotion/' + id);
     }
 
-    // Activer / Désactiver la mise en avant en un clic
     function toggleFeatured(id, currentStatus) {
         const newStatus = !currentStatus;
         fetch(`http://localhost:3001/promotions/${id}/featured`, {
@@ -37,10 +30,7 @@ function AdminPromotions() {
         })
         .then(response => {
             if (response.ok) {
-                // Mise à jour immédiate de l'état local
-                setPromotionsList(promotionsList.map(promo => 
-                    promo.idSale === id ? { ...promo, isFeatured: newStatus ? 1 : 0 } : promo
-                ));
+                setPromotionsList(promotionsList.map(promo => promo.idSale === id ? { ...promo, isFeatured: newStatus ? 1 : 0 } : promo));
             }
         })
         .catch(error => console.error('Erreur mise en avant :', error));
@@ -50,14 +40,14 @@ function AdminPromotions() {
         if (window.confirm("Supprimer définitivement cette promotion ?")) {
             fetch(`http://localhost:3001/promotions/${id}`, {
                 method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type' : 'application/json'},
             })
             .then(response => response.json())
             .then(() => {
                 alert("Promotion supprimée avec succès.");
                 setPromotionsList(promotionsList.filter(promo => promo.idSale !== id));
             })
-            .catch(error => console.error('Erreur lors de la suppression : ', error));
+            .catch(error => alert('Erreur lors de la suppression : ', error));
         }
     }
 
@@ -69,7 +59,7 @@ function AdminPromotions() {
     return (
         <div>
             <div className="admin-table-header">
-                <h3>Gestion des Promotions & Codes Réduction</h3>
+                <h3>Gestion des Promotions</h3>
                 <button className="admin-btn-add" onClick={navigateToAddPromotion}>Créer une promotion</button>
             </div>
             
@@ -84,8 +74,9 @@ function AdminPromotions() {
                             <tr>
                                 <th>Code</th>
                                 <th>Réduction</th>
-                                <th>Description / Conditions</th>
+                                <th>Description</th>
                                 <th>Validité</th>
+                                <th>État</th>
                                 <th>Mise en avant</th>
                                 <th>Actions</th>
                             </tr>
@@ -95,29 +86,24 @@ function AdminPromotions() {
                                 const isActive = new Date() >= new Date(promo.dateDebut) && new Date() <= new Date(promo.dateFin);
                                 return (
                                     <tr key={promo.idSale}>
-                                        <td className="admin-table-name" style={{ color: '#ef4444', letterSpacing: '1px' }}>
+                                        <td className="admin-table-name">
                                             {promo.code}
                                         </td>
-                                        <td style={{ fontWeight: 'bold' }}>-{Number(promo.rate).toFixed(0)}%</td>
+                                        <td>-{promo.rate}%</td>
                                         <td>
-                                            <div style={{ fontWeight: '600', fontSize: '0.9rem' }}>{promo.description || '-'}</div>
-                                            <div style={{ fontSize: '0.8rem', color: '#666', fontStyle: 'italic' }}>{promo.conditions ? `Conditions : ${promo.conditions}` : ''}</div>
+                                            <div>{promo.description || '-'}</div>
                                         </td>
                                         <td>
-                                            <div style={{ fontSize: '0.85rem' }}>Du {formatDate(promo.dateDebut)}</div>
-                                            <div style={{ fontSize: '0.85rem' }}>Au {formatDate(promo.dateFin)}</div>
-                                            <span className={`stock-badge ${isActive ? 'in-stock' : 'out-of-stock'}`} style={{ fontSize: '0.75rem', marginTop: '5px', display: 'inline-block' }}>
-                                                {isActive ? 'Active' : 'Inactive / Expirée'}
+                                            <div>Du {formatDate(promo.dateDebut)}</div>
+                                            <div>Au {formatDate(promo.dateFin)}</div>
+                                        </td>
+                                        <td>
+                                            <span className={`stock-badge ${isActive ? 'in-stock' : 'out-of-stock'}`} style={{ fontSize: '0.75rem', marginTop: '5px'}}>
+                                                {isActive ? 'Active' : 'Expirée'}
                                             </span>
                                         </td>
                                         <td>
-                                            <button 
-                                                onClick={() => toggleFeatured(promo.idSale, promo.isFeatured === 1)}
-                                                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.4rem' }}
-                                                title={promo.isFeatured === 1 ? "Retirer de la page d'accueil" : "Mettre en avant sur le site"}
-                                            >
-                                                {promo.isFeatured === 1 ? "⭐" : "☆"}
-                                            </button>
+                                            <input type="checkbox" checked={promo.isFeatured === 1} onChange={() => toggleFeatured(promo.idSale, promo.isFeatured === 1)} style={{ width: '18px', height: '18px', cursor: 'pointer' }}/>
                                         </td>
                                         <td>
                                             <button className="action-btn edit-btn" onClick={() => navigateToModifyPromotion(promo.idSale)}>✏️</button>

@@ -54,6 +54,7 @@
     border-radius: 8px;
     border: 1px solid #e2e8f0;
     box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    margin-bottom: 20px;
 }
 
 .complaint-info-box h3 {
@@ -141,7 +142,7 @@
 }
 
 .message-right .message-content {
-    background-color: #3b82f6; /* Bleu plus moderne */
+    background-color: #3b82f6;
     color: #ffffff;
     border-bottom-right-radius: 2px;
 }

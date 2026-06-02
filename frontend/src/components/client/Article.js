@@ -5,7 +5,6 @@ function Article(props) {
     const {cartItems, setCartItems, article} = props;
 
     function addArticle(e, article) {
-        // Empêche le clic du bouton d'activer le lien <a> qui entoure la carte
         e.preventDefault(); 
         
         const existingItem = cartItems.find(item => item.idItem === article.idItem);
@@ -33,7 +32,6 @@ function Article(props) {
                 </div>
                 
                 <div className="area-button">
-                    {/* On passe l'événement (e) à la fonction pour pouvoir le bloquer */}
                     <button className="button" onClick={(e) => addArticle(e, article)}>Ajouter au panier</button>
                 </div>
             </div>

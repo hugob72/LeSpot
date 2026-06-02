@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
+import { PreferencesContext } from '../../context/PreferencesContextProvider';
 import '../../styles/Profile.css';
 
 function ProfileDetails() {
+    const { theme, setTheme, language, setLanguage, currency, setCurrency } = useContext(PreferencesContext);
     const userId = localStorage.getItem('userId');
     const history = useHistory();
-
     const [user, setUser] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editForm, setEditForm] = useState({
@@ -30,7 +31,6 @@ function ProfileDetails() {
             .then(res => res.json())
             .then(data => {
                 setUser(data);
-                console.log(data)
                 setEditForm({
                     firstName: data.firstName || '',
                     lastName: data.lastName || '',
@@ -42,13 +42,38 @@ function ProfileDetails() {
                     paymentPreference: data.paymentPreference === null ? 'Aucun' : data.paymentPreference
                 });
             })
-            .catch(err => console.error('Erreur lors de la récupération du profil', err));
+            .catch(error => alert('Erreur lors de la récupération du profil', error));
     }, [userId, history]);
 
     const handleLogout = () => {
         localStorage.removeItem('userId');
         localStorage.removeItem('token');
         history.push('/login');
+    };
+
+    const handleDeleteAccount = () => {
+        const isConfirmed = window.confirm(
+            "⚠️ ATTENTION ⚠️\n\nÊtes-vous sûr de vouloir supprimer définitivement votre compte ?\nCette action est irréversible et effacera toutes vos commandes, avis et favoris."
+        );
+
+        if (isConfirmed) {
+            fetch(`http://localhost:3001/user/${userId}`, {
+                method: 'DELETE'
+            })
+            .then(async res => {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Erreur lors de la suppression');
+                
+                alert("Votre compte et toutes vos données ont été supprimés avec succès. Au revoir !");
+                localStorage.removeItem('userId');
+                localStorage.removeItem('token');
+                history.push('/');
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Une erreur est survenue lors de la suppression de votre compte.");
+            });
+        }
     };
 
     const handleInputChange = (e) => {
@@ -87,9 +112,19 @@ function ProfileDetails() {
                 <h2 className="profile-title">Bienvenue sur votre espace, {user.firstName} !</h2>
                 <div>
                     {!isEditing && (
-                        <button className="btn-primary" style={{ marginRight: '15px' }} onClick={() => setIsEditing(true)}>
-                            Modifier mes informations
-                        </button>
+                        <>
+                            <button 
+                                className="btn-danger" 
+                                style={{ marginRight: '15px', backgroundColor: '#ef4444' }} 
+                                onClick={handleDeleteAccount}
+                            >
+                                Supprimer mon compte
+                            </button>
+                            
+                            <button className="btn-primary" style={{ marginRight: '15px' }} onClick={() => setIsEditing(true)}>
+                                Modifier mes informations
+                            </button>
+                        </>
                     )}
                     <button className="btn-danger" onClick={handleLogout}>Se déconnecter</button>
                 </div>
@@ -97,7 +132,6 @@ function ProfileDetails() {
 
             {!isEditing ? (
                 <div className="profile-layout">
-                    {/* Colonne de Gauche : Informations Personnelles */}
                     <div className="profile-section">
                         <h3 className="profile-subtitle">Informations Personnelles</h3>
                         <ul className="profile-list">
@@ -113,12 +147,13 @@ function ProfileDetails() {
                         </ul>
                     </div>
 
-                    {/* Colonne de Droite : Préférences */}
                     <div className="profile-section">
                         <h3 className="profile-subtitle">Mes Préférences</h3>
                         <ul className="profile-list">
                             <li><span className="profile-label">Préférence de paiement :</span> <span className="profile-value">{user.paymentPreference || 'Aucun'}</span></li>
-                            {/* Espace prévu pour les futures préférences */}
+                            <li><span className="profile-label">Thème :</span> <span className="profile-value">{theme === 'dark' ? 'Couché de soleil' : 'Levé de soleil'}</span></li>
+                            <li><span className="profile-label">Langue :</span> <span className="profile-value">{language === 'fr' ? 'Français' : 'Anglais'}</span></li>
+                            <li><span className="profile-label">Devise :</span> <span className="profile-value">{currency}</span></li>
                         </ul>
                     </div>
                 </div>
@@ -166,6 +201,28 @@ function ProfileDetails() {
                                 <select className="form-select" name="paymentPreference" value={editForm.paymentPreference} onChange={handleInputChange}>
                                     <option value="Carte bancaire">Carte bancaire</option>
                                     <option value="Paypal">Paypal</option>
+                                </select>
+                            </div>
+                            <div className="form-group" style={{ marginTop: '15px' }}>
+                                <label>Thème de l'application : </label>
+                                <select className="form-select" value={theme} onChange={(e) => setTheme(e.target.value)}>
+                                    <option value="light">Levé de soleil</option>
+                                    <option value="dark">Couché de soleil</option>
+                                </select>
+                            </div>
+                            <div className="form-group" style={{ marginTop: '15px' }}>
+                                <label>Langue : </label>
+                                <select className="form-select" value={language} onChange={(e) => setLanguage(e.target.value)}>
+                                    <option value="fr">Français</option>
+                                    <option value="en">English</option>
+                                </select>
+                            </div>
+                            <div className="form-group" style={{ marginTop: '15px' }}>
+                                <label>Devise : </label>
+                                <select className="form-select" value={currency} onChange={(e) => setCurrency(e.target.value)}>
+                                    <option value="EUR">€ (Euro)</option>
+                                    <option value="USD">$ (Dollar US)</option>
+                                    <option value="GBP">£ (Livre Sterling)</option>
                                 </select>
                             </div>
                         </div>
