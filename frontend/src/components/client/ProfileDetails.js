@@ -1,4 +1,3 @@
-// ProfileDetails.js
 import { useState, useEffect, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { PreferencesContext } from '../../context/PreferencesContextProvider';
@@ -30,7 +29,7 @@ const translations = {
         currency: "Devise",
         saveBtn: "Sauvegarder les modifications",
         cancelBtn: "Annuler",
-        confirmDelete: "⚠️ ATTENTION ⚠️\n\nÊtes-vous sûr de vouloir supprimer définitivement votre compte ?\nCette action est irréversible et effacera toutes vos commandes, avis et favoris.",
+        confirmDelete: "ATTENTION\n\nÊtes-vous sûr de vouloir supprimer définitivement votre compte ?\nCette action est irréversible et effacera toutes vos commandes, avis et favoris.",
         successDelete: "Votre compte et toutes vos données ont été supprimés avec succès. Au revoir !",
         errorDelete: "Une erreur est survenue lors de la suppression de votre compte.",
         editInfoTitle: "Modifier mes informations",
@@ -62,7 +61,7 @@ const translations = {
         currency: "Currency",
         saveBtn: "Save changes",
         cancelBtn: "Cancel",
-        confirmDelete: "⚠️ WARNING ⚠️\n\nAre you sure you want to permanently delete your account?\nThis action is irreversible and will erase all your orders, reviews, and favorites.",
+        confirmDelete: "WARNING\n\nAre you sure you want to permanently delete your account?\nThis action is irreversible and will erase all your orders, reviews, and favorites.",
         successDelete: "Your account and all your data have been successfully deleted. Goodbye!",
         errorDelete: "An error occurred while deleting your account.",
         editInfoTitle: "Edit my information",
@@ -256,7 +255,7 @@ function ProfileDetails() {
                                 <select className="form-select" value={theme} onChange={(e) => setTheme(e.target.value)}>
                                     <option value="light">{t.themeSunrise}</option>
                                     <option value="dark">{t.themeSunset}</option>
-                                    <option value="water">{t.themeWater}</option> {/* NOUVEAU */}
+                                    <option value="water">{t.themeWater}</option>
                                 </select>
                             </div>
                             <div className="form-group" style={{ marginTop: '15px' }}>

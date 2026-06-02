@@ -47,7 +47,6 @@ function AdminStock() {
     const [itemsList, setItemsList] = useState([]);
     const history = useHistory();
 
-    // Fonction de formatage de la devise
     const formatPrice = (priceInEuros) => {
         const converted = priceInEuros * exchangeRates[currency];
         return `${converted.toFixed(2)}`;
@@ -107,7 +106,6 @@ function AdminStock() {
                             <th>{t.image}</th>
                             <th>{t.name}</th>
                             <th>{t.description}</th>
-                            {/* Affichage dynamique du symbole de la devise dans l'en-tête */}
                             <th>{t.price} ({symbols[currency]})</th>
                             <th>{t.onSale}</th> 
                             <th>{t.quantity}</th>
@@ -120,10 +118,7 @@ function AdminStock() {
                                 <td><img src={article.image} alt={article.name} className="admin-table-img" /></td>
                                 <td className="admin-table-name">{article.name}</td>
                                 <td className="admin-table-desc">{article.description}</td>
-                                
-                                {/* Application de la conversion ici avec le symbole */}
                                 <td>{formatPrice(article.price)} {symbols[currency]}</td>
-                                
                                 <td style={{ textAlign: 'center' }}>
                                     {article.onSale === 1 || article.onSale === true ? (
                                         <span style={{ backgroundColor: '#fee2e2', color: '#ef4444', padding: '4px 8px', borderRadius: '12px', fontWeight: 'bold', fontSize: '0.85rem' }}>

@@ -68,18 +68,14 @@ const translations = {
 function Checkout() {
     const { language, currency, theme } = useContext(PreferencesContext);
     const t = translations[language] || translations.fr;
-
     const { cartItems, setCartItems } = useContext(CartContext);
     const history = useHistory();
     const userId = localStorage.getItem('userId');
-
-    // NOUVEAU : Ajout des champs de carte bancaire dans le state initial
     const [formData, setFormData] = useState({
         address: '', postalCode: '', city: '', country: '', paymentPreference: 'Carte bancaire',
         cardNumber: '', cardExpiry: '', cardCvv: ''
     });
     const [loading, setLoading] = useState(true);
-
     const [promoCodeInput, setPromoCodeInput] = useState('');
     const [appliedPromotion, setAppliedPromotion] = useState(null);
     const [promoError, setPromoError] = useState(null);
@@ -98,8 +94,6 @@ function Checkout() {
         fetch(`http://localhost:3001/user/${userId}`)
             .then(res => res.json())
             .then(data => {
-                // On s'assure que la valeur est valide. Si ce n'est pas strictement 'Paypal', 
-                // on force 'Carte bancaire' par défaut, même si la BDD renvoie "Aucun" ou null.
                 const validPaymentPref = data.paymentPreference === 'Paypal' ? 'Paypal' : 'Carte bancaire';
 
                 setFormData(prev => ({
@@ -112,8 +106,8 @@ function Checkout() {
                 }));
                 setLoading(false);
             })
-            .catch(err => {
-                console.error(err);
+            .catch(error => {
+                console.error(error);
                 setLoading(false);
             });
     }, [userId]);
@@ -178,7 +172,6 @@ function Checkout() {
             idUser: userId,
             cartItems: cartItems,
             finalTotal: parseFloat(finalTotal.toFixed(2)) 
-            // Note : En situation réelle, n'envoyez pas cardNumber, cardExpiry et cardCvv à votre propre backend pour des raisons de sécurité.
         };
 
         fetch('http://localhost:3001/order', {
@@ -195,8 +188,8 @@ function Checkout() {
             setCartItems([]);
             history.push('/orders');
         })
-        .catch(err => {
-            console.error(err);
+        .catch(error => {
+            console.error(error);
             alert(t.errorOrder);
         });
     };
@@ -223,48 +216,20 @@ function Checkout() {
                             </select>
                         </div>
 
-                        {/* NOUVEAU : Affichage conditionnel des champs de carte bancaire */}
                         {formData.paymentPreference === 'Carte bancaire' && (
                             <div style={{ marginTop: '15px', marginBottom: '20px', padding: '15px', backgroundColor: 'var(--bg-color, #f8fafc)', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
                                 <div className="checkout-form-group" style={{ marginBottom: '15px' }}>
                                     <label className="checkout-label">{t.cardNumber}</label>
-                                    <input 
-                                        type="text" 
-                                        name="cardNumber" 
-                                        value={formData.cardNumber} 
-                                        onChange={handleInputChange} 
-                                        required 
-                                        maxLength="19" 
-                                        placeholder="0000 0000 0000 0000" 
-                                        className="checkout-input" 
-                                    />
+                                    <input type="text" name="cardNumber" value={formData.cardNumber} onChange={handleInputChange} required maxLength="19" placeholder="0000 0000 0000 0000" className="checkout-input" />
                                 </div>
                                 <div style={{ display: 'flex', gap: '15px' }}>
                                     <div className="checkout-form-group" style={{ flex: 1, marginBottom: 0 }}>
                                         <label className="checkout-label">{t.cardExpiry}</label>
-                                        <input 
-                                            type="text" 
-                                            name="cardExpiry" 
-                                            value={formData.cardExpiry} 
-                                            onChange={handleInputChange} 
-                                            required 
-                                            maxLength="5" 
-                                            placeholder="MM/AA" 
-                                            className="checkout-input" 
-                                        />
+                                        <input type="text" name="cardExpiry" value={formData.cardExpiry} onChange={handleInputChange} required maxLength="5" placeholder="MM/AA" className="checkout-input" />
                                     </div>
                                     <div className="checkout-form-group" style={{ flex: 1, marginBottom: 0 }}>
                                         <label className="checkout-label">{t.cardCvv}</label>
-                                        <input 
-                                            type="text" 
-                                            name="cardCvv" 
-                                            value={formData.cardCvv} 
-                                            onChange={handleInputChange} 
-                                            required 
-                                            maxLength="3" 
-                                            placeholder="123" 
-                                            className="checkout-input" 
-                                        />
+                                        <input type="text" name="cardCvv" value={formData.cardCvv} onChange={handleInputChange} required maxLength="3" placeholder="123" className="checkout-input" />
                                     </div>
                                 </div>
                             </div>

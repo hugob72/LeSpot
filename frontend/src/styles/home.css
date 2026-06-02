@@ -28,6 +28,6 @@
     width: 20vw;
     display: flex;
     flex-direction: column;
-    align-items: stretch; /* La carte prend toute la largeur de la colonne */
-    justify-content: flex-start; /* MAIS elle ne s'étire pas vers le bas */
+    align-items: stretch;
+    justify-content: flex-start;
 }

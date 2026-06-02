@@ -8,16 +8,16 @@ import '../../styles/cartSummary.css';
 
 const translations = {
     fr: {
-        loading: "Chargement...", title: "Mes Avis Laissés 💬", empty: "Vous n'avez pas encore rédigé d'avis.",
+        loading: "Chargement...", title: "Mes Avis Laissés", empty: "Vous n'avez pas encore rédigé d'avis.",
         onDate: "Le", rating: "Note :", stars: "étoiles", save: "Enregistrer", cancel: "Annuler",
-        edit: "✏️ Modifier", delete: "🗑️ Supprimer",
+        edit: "Modifier", delete: "Supprimer",
         confirmDelete: "Supprimer définitivement cet avis ?", deleted: "Avis supprimé.",
         emptyComment: "Le commentaire ne peut pas être vide.", updated: "Avis modifié !"
     },
     en: {
-        loading: "Loading...", title: "My Reviews 💬", empty: "You haven't written any reviews yet.",
+        loading: "Loading...", title: "My Reviews", empty: "You haven't written any reviews yet.",
         onDate: "On", rating: "Rating:", stars: "stars", save: "Save", cancel: "Cancel",
-        edit: "✏️ Edit", delete: "🗑️ Remove",
+        edit: "Edit", delete: "Remove",
         confirmDelete: "Permanently delete this review?", deleted: "Review deleted.",
         emptyComment: "Comment cannot be empty.", updated: "Review updated!"
     }
@@ -26,12 +26,10 @@ const translations = {
 function MyReviews() {
     const { language, theme } = useContext(PreferencesContext);
     const t = translations[language] || translations.fr;
-
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const history = useHistory();
     const userId = localStorage.getItem('userId');
-
     const [editingItemId, setEditingItemId] = useState(null); 
     const [editForm, setEditForm] = useState({ rating: 5, comment: '' });
 
@@ -46,8 +44,7 @@ function MyReviews() {
                 if (Array.isArray(data)) setReviews(data);
                 setLoading(false);
             })
-            .catch(err => {
-                console.error(err);
+            .catch(error => {
                 setLoading(false);
             });
     };
@@ -64,7 +61,7 @@ function MyReviews() {
                     alert(t.deleted);
                     setReviews(reviews.filter(r => r.idItem !== idItem));
                 })
-                .catch(err => console.error(err));
+                .catch(error => console.error(error));
         }
     };
 
@@ -86,15 +83,20 @@ function MyReviews() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(editForm)
         })
-        .then(async res => {
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error);
-            
+        .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => { 
+                        throw new Error(data.error || 'Erreur serveur'); 
+                    });
+                }
+                return response.json();
+            })
+        .then(data => {  
             alert(t.updated);
             setEditingItemId(null);
             fetchUserReviews(); 
         })
-        .catch(err => alert(err.message));
+        .catch(error => alert(error.message));
     };
 
     if (loading) return <div className={`home ${theme === 'dark' ? 'dark-mode' : ''}`}><Header /><p style={{textAlign:'center', marginTop:'50px'}}>{t.loading}</p></div>;

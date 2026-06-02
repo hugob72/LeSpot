@@ -78,10 +78,9 @@ function AddArticle() {
         .then(response => response.json())
         .then(data => {
             console.log("Ajout effectué en BDD");
-            // Optionnel : un petit feedback ici serait top
         })
         .catch(error => {
-            console.error('Erreur lors de la création de l\'article : ', error);
+            alert('Erreur lors de la création de l\'article : ', error);
         })
     }
 

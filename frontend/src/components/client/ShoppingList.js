@@ -5,7 +5,6 @@ import '../../styles/shoppingList.css';
 
 const exchangeRates = { EUR: 1, USD: 1.08, GBP: 0.85 };
 const symbols = { EUR: '€', USD: '$', GBP: '£' };
-
 const translations = {
     fr: {
         category: "Catégorie :", allItems: "Tous les articles", boards: "Planches de surf", wetsuits: "Combinaisons",
@@ -26,10 +25,8 @@ const translations = {
 function ShoppingList({ cartItems, setCartItems }) {
     const { language, currency } = useContext(PreferencesContext);
     const t = translations[language] || translations.fr;
-
     const [itemsList, setItemsList] = useState([]);
     const [displayedItems, setDisplayedItems] = useState([]);
-
     const [searchTerm, setSearchTerm] = useState('');
     const [maxPrice, setMaxPrice] = useState(''); 
     const [sortOption, setSortOption] = useState('');
@@ -46,23 +43,15 @@ function ShoppingList({ cartItems, setCartItems }) {
     }, []);
 
     useEffect(() => {
-        // --- Filtrage ---
         let filtered = itemsList.filter(item => {
             const matchSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
-            
-            // Conversion du prix avant comparaison
             const convertedPrice = item.price * exchangeRates[currency];
-            const matchPrice = maxPrice === '' || convertedPrice <= Number(maxPrice);
-            
+            const matchPrice = maxPrice === '' || convertedPrice <= Number(maxPrice);          
             const matchType = filterType === '' || item.itemType === filterType;
-
             return matchSearch && matchPrice && matchType; 
         });
 
-        // --- Tri ---
         let sorted = [...filtered]; 
-        
-        // Le tri reste identique car un multiplicateur de devise ne change pas l'ordre
         if (sortOption === 'price-asc') {
             sorted.sort((a, b) => a.price - b.price);
         } else if (sortOption === 'price-desc') {
@@ -72,9 +61,8 @@ function ShoppingList({ cartItems, setCartItems }) {
         } else if (sortOption === 'name-desc') {
             sorted.sort((a, b) => b.name.localeCompare(a.name));
         }
-
         setDisplayedItems(sorted);
-    }, [searchTerm, maxPrice, sortOption, filterType, itemsList, currency]); // Ajout de currency aux dépendances
+    }, [searchTerm, maxPrice, sortOption, filterType, itemsList, currency]);
 
     const handleReset = (e) => {
         e.preventDefault();

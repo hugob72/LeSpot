@@ -13,14 +13,14 @@ const symbols = { EUR: '€', USD: '$', GBP: '£' };
 const translations = {
     fr: {
         loading: "Chargement de vos coups de cœur...", title: "Mes Coups de Cœur ❤️",
-        empty: "Votre liste de favoris est vide pour le moment. 🏄‍♂️",
+        empty: "Votre liste de favoris est vide pour le moment.",
         service: "🗓️ Prestation / Cours", article: "🛒 Article Boutique",
         seeAgenda: "Voir l'agenda", buy: "Acheter", delete: "Supprimer",
         addedCart: "Produit ajouté au panier !", loginReq: "Vous devez être connecté pour gérer vos favoris !"
     },
     en: {
         loading: "Loading your favorites...", title: "My Favorites ❤️",
-        empty: "Your favorites list is empty for now. 🏄‍♂️",
+        empty: "Your favorites list is empty for now.",
         service: "🗓️ Service / Class", article: "🛒 Shop Item",
         seeAgenda: "See availability", buy: "Buy", delete: "Remove",
         addedCart: "Item added to cart!", loginReq: "You must be logged in to manage your favorites!"
@@ -121,17 +121,10 @@ function MyFavorites() {
                                 </div>
                                 
                                 <div className="cart-summary-item-controls">
-                                    <button 
-                                        className="cart-summary-pay-btn" 
-                                        style={{ backgroundColor: '#10b981', padding: '8px 15px', fontSize: '0.9rem' }}
-                                        onClick={() => handleAddToCart(fav)}
-                                    >
+                                    <button className="cart-summary-pay-btn" style={{ backgroundColor: '#10b981', padding: '8px 15px', fontSize: '0.9rem' }} onClick={() => handleAddToCart(fav)}>
                                         {fav.type === 'service' ? t.seeAgenda : t.buy}
                                     </button>
-                                    <button 
-                                        className="cart-summary-delete-btn"
-                                        onClick={() => handleRemoveFavorite(fav)}
-                                    >
+                                    <button className="cart-summary-delete-btn" onClick={() => handleRemoveFavorite(fav)}>
                                         {t.delete}
                                     </button>
                                 </div>

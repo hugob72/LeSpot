@@ -61,8 +61,7 @@ function MyComplaints() {
                 setComplaints(data);
                 setLoading(false);
             })
-            .catch(err => {
-                console.error("Erreur:", err);
+            .catch(error => {
                 setLoading(false);
             });
     }, [userId, history]);

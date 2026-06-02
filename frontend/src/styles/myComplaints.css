@@ -1,7 +1,6 @@
-/* Wrapper principal sans conflit avec le reste du site */
 .my-complaints-wrapper {
     width: 95%;
-    max-width: 1000px; /* Un peu moins large que le détail pour centrer la lecture */
+    max-width: 1000px;
     margin: 50px auto;
     background-color: #ffffff;
     border-radius: 12px;
@@ -11,7 +10,6 @@
     min-height: 60vh;
 }
 
-/* En-tête (Titre + Bouton) */
 .complaints-header {
     display: flex;
     justify-content: space-between;
@@ -28,7 +26,7 @@
 }
 
 .btn-new-complaint {
-    background-color: #f8ba57; /* Ta couleur jaune/orange d'origine */
+    background-color: #f8ba57;
     color: #fff;
     padding: 12px 24px;
     border-radius: 8px;
@@ -44,7 +42,6 @@
     box-shadow: 0 6px 12px rgba(248, 186, 87, 0.4);
 }
 
-/* État vide */
 .empty-state {
     text-align: center;
     padding: 50px;
@@ -55,7 +52,6 @@
     border-radius: 8px;
 }
 
-/* Liste et Cartes */
 .complaints-list {
     display: flex;
     flex-direction: column;
@@ -80,7 +76,6 @@
     overflow: hidden;
 }
 
-/* Effet visuel au survol : petite barre d'accentuation à gauche */
 .complaint-card::before {
     content: '';
     position: absolute;
@@ -103,7 +98,6 @@
     background-color: #3b82f6;
 }
 
-/* Textes de la carte */
 .complaint-info {
     display: flex;
     flex-direction: column;
@@ -130,7 +124,6 @@
     font-size: 0.95rem;
 }
 
-/* Badges de statuts (Alignés avec ta Base de Données) */
 .complaint-state {
     padding: 8px 16px;
     border-radius: 20px;
@@ -144,22 +137,3 @@
 .state-en-cours { background-color: #dbeafe; color: #2563eb; }
 .state-resolue { background-color: #d1fae5; color: #059669; }
 .state-fermee { background-color: #f1f5f9; color: #475569; }
-
-/* --- RESPONSIVE MOBILE --- */
-@media (max-width: 768px) {
-    .complaints-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 20px;
-    }
-    
-    .complaint-card {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-    }
-    
-    .complaint-state {
-        align-self: flex-start;
-    }
-}

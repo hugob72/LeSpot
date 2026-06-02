@@ -51,7 +51,6 @@ const translations = {
 function ComplaintDetail() {
     const { language, theme } = useContext(PreferencesContext);
     const t = translations[language] || translations.fr;
-
     const { id } = useParams();
     const history = useHistory();
     const [complaint, setComplaint] = useState(null);
@@ -69,19 +68,17 @@ function ComplaintDetail() {
         fetch(`http://localhost:3001/complaint/${id}`)
             .then(res => res.json())
             .then(data => {
-                if (data.error) alert(data.error);
-                else setComplaint(data);
+                setComplaint(data);
             })
-            .catch(err => console.error(err));
+            .catch(error => console.error(error));
 
         fetch(`http://localhost:3001/complaint/${id}/messages`)
             .then(res => res.json())
             .then(data => {
-                if (Array.isArray(data)) setMessages(data);
-                else setMessages([]); 
+                setMessages(data || []);
                 setLoading(false);
             })
-            .catch(err => {
+            .catch(error => {
                 setMessages([]);
                 setLoading(false);
             });
@@ -98,16 +95,12 @@ function ComplaintDetail() {
         })
         .then(res => res.json())
         .then(data => {
-            if (data.error) {
-                alert(data.error);
-            } else {
-                setNewMessage('');
-                fetch(`http://localhost:3001/complaint/${id}/messages`)
-                    .then(res => res.json())
-                    .then(msgData => setMessages(msgData));
-            }
+            setNewMessage('');
+            fetch(`http://localhost:3001/complaint/${id}/messages`)
+                .then(res => res.json())
+                .then(msgData => setMessages(msgData));
         })
-        .catch(err => console.error(err));
+        .catch(error => console.error(error));
     };
 
     if (loading) return <div className="complaint-detail-loading">{t.loading}</div>;
@@ -165,15 +158,7 @@ function ComplaintDetail() {
                             </div>
 
                             <form className="message-form" onSubmit={handleSendMessage}>
-                                <textarea
-                                    value={newMessage}
-                                    onChange={(e) => setNewMessage(e.target.value)}
-                                    placeholder={t.writePlaceholder}
-                                    required
-                                    rows="3"
-                                    className="message-textarea"
-                                    style={{backgroundColor: 'var(--bg-color)', color: 'var(--text-color)'}}
-                                ></textarea>
+                                <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder={t.writePlaceholder} required rows="3" className="message-textarea" style={{backgroundColor: 'var(--bg-color)', color: 'var(--text-color)'}}></textarea>
                                 <button type="submit" className="btn-send-message">{t.sendBtn}</button>
                             </form>
                         </div>

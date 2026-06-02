@@ -27,14 +27,10 @@ const translations = {
 function MyOrders() {
     const { language, theme } = useContext(PreferencesContext);
     const t = translations[language] || translations.fr;
-
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [expandedOrder, setExpandedOrder] = useState(null);
-    
-    // NOUVEAU : State pour la barre de recherche
     const [searchTerm, setSearchTerm] = useState('');
-    
     const history = useHistory();
     const userId = localStorage.getItem('userId');
 
@@ -50,8 +46,8 @@ function MyOrders() {
                 setOrders(data);
                 setLoading(false);
             })
-            .catch(err => {
-                console.error("Erreur lors de la récupération des commandes:", err);
+            .catch(error => {
+                alert("Erreur lors de la récupération des commandes:", error);
                 setLoading(false);
             });
     }, [userId, history]);
@@ -64,8 +60,6 @@ function MyOrders() {
         }
     };
 
-    // NOUVEAU : On filtre les commandes en fonction de la recherche
-    // On convertit idOrder en string pour pouvoir utiliser la méthode .includes()
     const filteredOrders = orders.filter(order => 
         order.idOrder.toString().includes(searchTerm.trim())
     );
@@ -78,7 +72,6 @@ function MyOrders() {
             <div className="container my-orders-container">
                 <h1 className="my-orders-title">{t.title}</h1>
 
-                {/* NOUVEAU : Barre de recherche (affichée seulement s'il y a des commandes ou si une recherche est en cours) */}
                 {(orders.length > 0 || searchTerm !== '') && (
                     <div style={{ marginBottom: '20px' }}>
                         <input 
@@ -103,18 +96,11 @@ function MyOrders() {
                 {orders.length === 0 ? (
                     <p style={{color: 'var(--text-color)'}}>{t.empty}</p>
                 ) : filteredOrders.length === 0 ? (
-                    /* NOUVEAU : Message si la recherche ne donne rien */
                     <p style={{color: 'var(--text-color)'}}>{t.noResult}</p>
                 ) : (
                     <div className="my-orders-list">
-                        {/* NOUVEAU : On map sur filteredOrders au lieu de orders */}
                         {filteredOrders.map(order => (
-                            <OrderCollapse 
-                                key={order.idOrder} 
-                                order={order} 
-                                isExpanded={expandedOrder === order.idOrder} 
-                                toggleOrder={toggleOrder} 
-                            />
+                            <OrderCollapse key={order.idOrder} order={order} isExpanded={expandedOrder === order.idOrder} toggleOrder={toggleOrder} />
                         ))}
                     </div>
                 )}

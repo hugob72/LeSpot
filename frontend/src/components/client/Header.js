@@ -48,12 +48,9 @@ function Header() {
     const history = useHistory();
     const t = translations[language] || translations.fr;
     const totalQuantity = cartItems.reduce((acc, item) => acc + (parseInt(item.quantity) || 0), 0);
-
-    // État pour gérer l'ouverture du menu déroulant au survol
     const [isAccountOpen, setIsAccountOpen] = useState(false);
     const userId = localStorage.getItem('userId');
     const role = localStorage.getItem('role');
-
 
     const handleLogout = () => {
         localStorage.removeItem('userId');
@@ -71,20 +68,13 @@ function Header() {
                 <li><Link to="/promotions">{t.promotions}</Link></li>
                 {(!userId) && <li><Link to="/create-complaint">{t.complaintsUser}</Link></li> }
                 {/* <li><Link to="/contact">{t.contact}</Link></li> */}
-                {(userId && role === "admin") && <li><Link to="/admin">{t.admin}</Link></li> }
+                {(userId && role === "admin") && <li><Link to="/admin/stock">{t.admin}</Link></li> }
             </ul>
 
-            {/* Zone de droite avec les icônes */}
             <div className="header-icons-wrapper">
                 
-                {/* MENU DÉROULANT DU COMPTE */}
-                <div 
-                    className="account-icon-wrapper"
-                    onMouseEnter={() => setIsAccountOpen(true)}
-                    onMouseLeave={() => setIsAccountOpen(false)}
-                >
+                <div className="account-icon-wrapper"onMouseEnter={() => setIsAccountOpen(true)}onMouseLeave={() => setIsAccountOpen(false)}>
                     <div className="account-icon">
-                        {/* Icône Utilisateur */}
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                             <circle cx="12" cy="7" r="4"></circle>
@@ -110,7 +100,6 @@ function Header() {
                     </div>
                 </div>
 
-                {/* ICÔNE DU PANIER */}
                 <div className="cart-icon-wrapper">
                     <div className="cart-icon" onClick={() => history.push('/cart')}>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -118,9 +107,7 @@ function Header() {
                             <circle cx="20" cy="21" r="1"></circle>
                             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                         </svg>
-                        {totalQuantity > 0 && (
-                            <span className="cart-badge">{totalQuantity}</span>
-                        )}
+                        {totalQuantity > 0 && (<span className="cart-badge">{totalQuantity}</span>)}
                     </div>
                 </div>
             </div>

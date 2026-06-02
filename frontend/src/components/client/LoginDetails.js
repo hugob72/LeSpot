@@ -40,7 +40,7 @@ function LoginDetails() {
     const [firstname, setFirstName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState(''); // Inutilisé dans le fetch mais présent visuellement
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [isSignup, setIsSignup] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');

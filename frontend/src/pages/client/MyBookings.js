@@ -13,7 +13,7 @@ const translations = {
         empty: "Vous n'avez encore réservé aucune session. 🏄‍♂️",
         upcoming: "Sessions à venir",
         noUpcoming: "Aucune session prévue prochainement.",
-        duration: "⏱️ Durée :",
+        duration: "Durée :",
         min: "min",
         confirmed: "Confirmée",
         history: "Historique passé",
@@ -26,7 +26,7 @@ const translations = {
         empty: "You haven't booked any sessions yet. 🏄‍♂️",
         upcoming: "Upcoming sessions",
         noUpcoming: "No upcoming sessions scheduled.",
-        duration: "⏱️ Duration:",
+        duration: "Duration:",
         min: "min",
         confirmed: "Confirmed",
         history: "Past history",
@@ -38,7 +38,6 @@ const translations = {
 function MyBookings() {
     const { language, theme } = useContext(PreferencesContext);
     const t = translations[language] || translations.fr;
-
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const history = useHistory();
@@ -53,15 +52,11 @@ function MyBookings() {
         fetch(`http://localhost:3001/user/${userId}/bookings`)
             .then(res => res.json())
             .then(data => {
-                if (Array.isArray(data)) {
-                    setBookings(data);
-                } else {
-                    setBookings([]);
-                }
+                setBookings(data ||[]);
                 setLoading(false);
             })
-            .catch(err => {
-                console.error("Erreur récupération réservations:", err);
+            .catch(error => {
+                alert("Erreur récupération réservations:", error);
                 setLoading(false);
             });
     }, [userId, history]);
@@ -83,7 +78,6 @@ function MyBookings() {
     const formatDateTime = (dateStr, timeStr) => {
         const date = getBookingDate(dateStr, timeStr); 
         const formattedDate = date.toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-        // En anglais, "à" se traduit par "at"
         const atWord = language === 'fr' ? 'à' : 'at';
         return `${formattedDate} ${atWord} ${timeStr.substring(0, 5)}`;
     };

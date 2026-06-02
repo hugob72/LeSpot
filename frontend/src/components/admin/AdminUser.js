@@ -55,7 +55,7 @@ function AdminUsers() {
     };
 
     const handleDeleteUser = (idUser) => {
-        if (window.confirm("⚠️ La suppression d'un compte est définitive. Toutes les commandes, réclamations et avis associés seront également supprimés.\n Voulez-vous continuer ?")) {
+        if (window.confirm("La suppression d'un compte est définitive. Toutes les commandes, réclamations et avis associés seront également supprimés.\n Voulez-vous continuer ?")) {
             fetch(`http://localhost:3001/user/${idUser}`, {
                 method: 'DELETE'
             })

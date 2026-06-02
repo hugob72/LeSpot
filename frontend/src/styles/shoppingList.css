@@ -1,7 +1,6 @@
-/* Layout global de la page boutique */
 .shopping-page {
     display: flex;
-    flex-direction: column; /* Organise la page de haut en bas */
+    flex-direction: column;
     gap: 30px;
     padding: 20px;
     max-width: 1400px;
@@ -20,16 +19,16 @@
 
 .filter-form {
     display: flex;
-    flex-wrap: wrap; /* Permet de passer à la ligne sur petit écran */
+    flex-wrap: wrap;
     gap: 20px;
-    align-items: flex-end; /* Aligne le bouton avec les champs de saisie */
+    align-items: flex-end;
 }
 
 .filter-group {
     display: flex;
     flex-direction: column;
-    flex: 1; /* Permet aux champs de prendre l'espace disponible équitablement */
-    min-width: 200px; /* Évite que les champs soient trop écrasés */
+    flex: 1;
+    min-width: 200px;
 }
 
 .filter-group label {
@@ -47,13 +46,13 @@
     border-radius: 6px;
     font-family: inherit;
     font-size: 1rem;
-    height: 42px; /* Hauteur fixe pour uniformiser avec le bouton */
+    height: 42px;
     box-sizing: border-box;
 }
 
 .btn-reset {
     padding: 10px 20px;
-    height: 42px; /* Même hauteur que les inputs */
+    height: 42px;
     background-color: #ef4444;
     color: white;
     border: none;
@@ -61,18 +60,17 @@
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.2s;
-    white-space: nowrap; /* Empêche le texte du bouton de se couper sur 2 lignes */
+    white-space: nowrap;
 }
 
 .btn-reset:hover {
     background-color: #dc2626;
 }
 
-/* Zone des articles */
 .article-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center; /* Centre les cartes s'il n'y en a pas assez pour remplir la ligne */
+    justify-content: center;
     gap: 20px;
 }
 
@@ -87,7 +85,6 @@
     border: 1px dashed #cbd5e1;
 }
 
-/* Enlève le style de lien natif sur les cartes du composant Article */
 .card-link {
     text-decoration: none;
     color: inherit;

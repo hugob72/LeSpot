@@ -21,7 +21,6 @@ function Article(props) {
     const { language, currency } = useContext(PreferencesContext);
     const t = translations[language] || translations.fr;
 
-    // Fonction de formatage de la devise
     const formatPrice = (priceInEuros) => {
         const converted = priceInEuros * exchangeRates[currency];
         return `${converted.toFixed(2)}${symbols[currency]}`;
@@ -50,7 +49,6 @@ function Article(props) {
                 <img src={article.image} alt={article.name} className="card-image"/>
                 
                 <div className="card-content">
-                    {/* On utilise formatPrice ici */}
                     <p className="card-price">{formatPrice(article.price)}</p>
                     <p className="truncate">{article.name}</p>
                 </div>

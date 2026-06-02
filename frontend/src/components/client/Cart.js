@@ -27,10 +27,7 @@ function Cart({cartItems, setCartItems}) {
     const history = useHistory();
     const { language, currency } = useContext(PreferencesContext);
     const t = translations[language] || translations.fr;
-    const item1 = 15;
-    const item2 = 20;
 
-    // Fonction de formatage de la devise
     const formatPrice = (priceInEuros) => {
         const converted = priceInEuros * exchangeRates[currency];
         return `${converted.toFixed(2)} ${symbols[currency]}`;
@@ -47,20 +44,16 @@ function Cart({cartItems, setCartItems}) {
             {cartItems.map((item, index) => (
                 <div className="cart-item" key={index}>
                     <p>{item.name} : </p>
-                    {/* On utilise formatPrice pour chaque article */}
                     <p>{formatPrice(item.price)}</p>
                     <p>{t.qty} {item.quantity}</p>
                 </div>
             ))}
 
             <div className="cart-total">
-                {/* On utilise formatPrice pour le total global */}
                 <p><b>{t.total}</b>{formatPrice(total)}</p>
                 <div className="area-button">
                     <button className="button" onClick={() => {setCartItems([])}}>{t.emptyCart}</button>
-                    {/* <button className="button" onClick={() => history.push('/cart')} style={{marginLeft: '10px'}}>{t.viewCart}</button> */}
                 </div>
-                
             </div>
         </div>
     );

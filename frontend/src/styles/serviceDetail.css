@@ -4,7 +4,6 @@
     padding: 0 20px;
 }
 
-/* --- HERO SECTION (Présentation) --- */
 .service-hero {
     display: flex;
     gap: 40px;
@@ -56,7 +55,6 @@
     font-size: 0.95rem;
 }
 
-/* --- BOOKING SECTION (Calendrier + Créneaux) --- */
 .booking-section h2 {
     color: #111827;
     border-bottom: 2px solid #e5e7eb;
@@ -112,15 +110,13 @@
     background-color: #f3f4f6 !important;
 }
 
-/* Jour sélectionné */
 .react-calendar__tile--active {
-    background-color: #48A3AE !important; /* Ta couleur principale */
+    background-color: #48A3AE !important; 
     color: white !important;
     font-weight: bold;
     border-radius: 8px;
 }
 
-/* --- CRÉNEAUX (Droite) --- */
 .slots-container h3 {
     margin-top: 0;
     color: #374151;
@@ -188,7 +184,6 @@
     color: #6b7280;
 }
 
-/* --- ACTION DE RÉSERVATION --- */
 .booking-action {
     margin-top: 30px;
     padding-top: 20px;
@@ -198,7 +193,7 @@
 .btn-confirm-booking {
     width: 100%;
     padding: 15px;
-    background-color: #10b981; /* Vert validation */
+    background-color: #10b981;
     color: white;
     border: none;
     border-radius: 8px;

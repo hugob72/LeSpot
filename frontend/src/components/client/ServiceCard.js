@@ -5,7 +5,6 @@ import '../../styles/article.css';
 
 const exchangeRates = { EUR: 1, USD: 1.08, GBP: 0.85 };
 const symbols = { EUR: '€', USD: '$', GBP: '£' };
-
 const translations = {
     fr: { startingAt: "À partir de", duration: "Durée :", min: "min", seeAvail: "Voir les disponibilités" },
     en: { startingAt: "Starting at", duration: "Duration:", min: "min", seeAvail: "See availability" }
@@ -32,9 +31,7 @@ function ServiceCard({ service }) {
                 </div>
                 
                 <div className="area-button">
-                    <button className="button" style={{backgroundColor: '#48A3AE'}}>
-                        {t.seeAvail}
-                    </button>
+                    <button className="button" style={{backgroundColor: '#48A3AE'}}>{t.seeAvail}</button>
                 </div>
             </div>
         </Link>

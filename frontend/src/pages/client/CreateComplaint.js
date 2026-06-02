@@ -58,11 +58,9 @@ function useQuery() {
 function CreateComplaint() {
     const { language, theme } = useContext(PreferencesContext);
     const t = translations[language] || translations.fr;
-
     const history = useHistory();
     const query = useQuery();
     const initialOrderId = query.get('orderId');
-    
     const [selectedOrderId, setSelectedOrderId] = useState(initialOrderId || '');
     const [orders, setOrders] = useState([]);
     const [type, setType] = useState('');
@@ -74,7 +72,7 @@ function CreateComplaint() {
         fetch(`http://localhost:3001/order/user/${userId}`)
             .then(res => res.json())
             .then(data => setOrders(data))
-            .catch(err => console.error('Erreur récupération commandes:', err));
+            .catch(err => alert('Erreur récupération commandes:', err));
     }, [userId, history]);
 
     const handleSubmit = (e) => {
@@ -117,13 +115,7 @@ function CreateComplaint() {
                 <form className="complaint-form" onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label>{t.orderLabel}</label>
-                        <select 
-                            value={selectedOrderId} 
-                            onChange={(e) => setSelectedOrderId(e.target.value)} 
-                            required
-                            className="complaint-input"
-                            style={{backgroundColor: 'var(--bg-color)', color: 'var(--text-color)'}}
-                        >
+                        <select value={selectedOrderId} onChange={(e) => setSelectedOrderId(e.target.value)} requiredclassName="complaint-input"style={{backgroundColor: 'var(--bg-color)', color: 'var(--text-color)'}}>
                             <option value="">{t.selectOrder}</option>
                             {orders.map(order => (
                                 <option key={order.idOrder} value={order.idOrder}>
@@ -136,13 +128,7 @@ function CreateComplaint() {
 
                     <div className="form-group">
                         <label>{t.typeLabel}</label>
-                        <select 
-                            value={type} 
-                            onChange={(e) => setType(e.target.value)} 
-                            required
-                            className="complaint-input"
-                            style={{backgroundColor: 'var(--bg-color)', color: 'var(--text-color)'}}
-                        >
+                        <select value={type} onChange={(e) => setType(e.target.value)} requiredclassName="complaint-input"style={{backgroundColor: 'var(--bg-color)', color: 'var(--text-color)'}}>
                             <option value="">{t.selectType}</option>
                             <option value="livraison">{t.typeDelivery}</option>
                             <option value="produit_defectueux">{t.typeDefective}</option>
@@ -154,25 +140,11 @@ function CreateComplaint() {
 
                     <div className="form-group">
                         <label>{t.topicLabel}</label>
-                        <input 
-                            type="text" 
-                            value={topic} 
-                            onChange={(e) => setTopic(e.target.value)} 
-                            required 
-                            className="complaint-input"
-                            style={{backgroundColor: 'var(--bg-color)', color: 'var(--text-color)'}}
-                        />
+                        <input type="text" value={topic} onChange={(e) => setTopic(e.target.value)} required className="complaint-input"style={{backgroundColor: 'var(--bg-color)', color: 'var(--text-color)'}}/>
                     </div>
                     <div className="form-group">
                         <label>{t.descLabel}</label>
-                        <textarea 
-                            value={description} 
-                            onChange={(e) => setDescription(e.target.value)} 
-                            required 
-                            rows="6"
-                            className="complaint-textarea"
-                            style={{backgroundColor: 'var(--bg-color)', color: 'var(--text-color)'}}
-                        />
+                        <textarea value={description} onChange={(e) => setDescription(e.target.value)} required rows="6"className="complaint-textarea"style={{backgroundColor: 'var(--bg-color)', color: 'var(--text-color)'}}/>
                     </div>
                     <div className="complaint-buttons">
                         <button type="button" className="btn-cancel" onClick={handleCancel}>{t.cancel}</button>

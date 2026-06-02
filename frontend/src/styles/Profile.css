@@ -1,9 +1,7 @@
-/* Profile.css */
-
 .profile-container {
     padding: 40px;
     background-color: #f9f9f9;
-    min-height: calc(100vh - 200px); /* Ajuster selon le header et footer */
+    min-height: calc(100vh - 200px);
 }
 
 .profile-header {

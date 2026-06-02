@@ -6,20 +6,20 @@ import '../../styles/home.css';
 
 const translations = {
     fr: {
-        title: "Nos Offres du Moment 🏷️",
+        title: "Nos Offres du Moment",
         loading: "Chargement des bons plans...",
         noOffers: "Aucune offre spéciale pour le moment.",
         comeBack: "Revenez bientôt pour découvrir nos prochains bons plans !",
-        featured: "⭐ À LA UNE",
+        featured: "À LA UNE",
         codeToUse: "Code à utiliser dans le panier :",
         validUntil: "Valable jusqu'au"
     },
     en: {
-        title: "Current Offers 🏷️",
+        title: "Current Offers",
         loading: "Loading great deals...",
         noOffers: "No special offers at the moment.",
         comeBack: "Check back soon to discover our next great deals!",
-        featured: "⭐ FEATURED",
+        featured: "FEATURED",
         codeToUse: "Code to use in cart:",
         validUntil: "Valid until"
     }
@@ -28,7 +28,6 @@ const translations = {
 function Promotions() {
     const { language, theme } = useContext(PreferencesContext);
     const t = translations[language] || translations.fr;
-
     const [promotions, setPromotions] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -36,13 +35,11 @@ function Promotions() {
         fetch('http://localhost:3001/promotions/active')
             .then(res => res.json())
             .then(data => {
-                if (Array.isArray(data)) {
-                    setPromotions(data);
-                }
+                setPromotions(data);
                 setLoading(false);
             })
-            .catch(err => {
-                console.error("Erreur lors de la récupération des promos :", err);
+            .catch(error => {
+                console.error("Erreur lors de la récupération des promos :", error);
                 setLoading(false);
             });
     }, []);
@@ -64,21 +61,19 @@ function Promotions() {
                         <p style={{ color: '#94a3b8' }}>{t.comeBack}</p>
                     </div>
                 ) : (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '30px', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '30px', justifyContent: 'center', marginLeft: '200px' }}>
                         {promotions.map(promo => (
                             <div key={promo.idSale} style={{
                                 border: promo.isFeatured ? '2px solid #ef4444' : '1px solid var(--border-color)',
                                 borderRadius: '12px',
                                 padding: '25px',
                                 width: '320px',
-                                // Adaptation de la couleur de fond selon le thème et la mise en avant
                                 backgroundColor: promo.isFeatured ? (theme === 'dark' ? '#451a1a' : '#fff5f5') : 'var(--card-bg)',
                                 boxShadow: promo.isFeatured ? '0 8px 15px rgba(239, 68, 68, 0.15)' : '0 4px 6px rgba(0,0,0,0.05)',
                                 position: 'relative',
                                 display: 'flex',
                                 flexDirection: 'column'
                             }}>
-                                {/* Badge de mise en avant */}
                                 {promo.isFeatured && (
                                     <span style={{ 
                                         position: 'absolute', top: '-15px', left: '20px', 
@@ -107,13 +102,9 @@ function Promotions() {
                                 </div>
                                 
                                 <div style={{ flexGrow: 1 }}>
-                                    <p style={{ fontWeight: 'bold', color: 'var(--text-color)', fontSize: '1.1rem', marginBottom: '10px' }}>
-                                        {promo.description}
-                                    </p>
+                                    <p style={{ fontWeight: 'bold', color: 'var(--text-color)', fontSize: '1.1rem', marginBottom: '10px' }}>{promo.description}</p>
                                     {promo.conditions && (
-                                        <p style={{ fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic', backgroundColor: 'var(--bg-color)', padding: '10px', borderRadius: '6px' }}>
-                                            ⚠️ {promo.conditions}
-                                        </p>
+                                        <p style={{ fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic', backgroundColor: 'var(--bg-color)', padding: '10px', borderRadius: '6px' }}>{promo.conditions}</p>
                                     )}
                                 </div>
                                 

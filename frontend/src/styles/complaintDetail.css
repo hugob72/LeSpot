@@ -1,7 +1,6 @@
-/* Conteneur principal étendu */
 .complaint-page-wrapper {
-    width: 95%; /* Prend 95% de la largeur de l'écran */
-    max-width: 1400px; /* Limite maximale pour les très grands écrans */
+    width: 95%;
+    max-width: 1400px;
     margin: 40px auto;
     background-color: #f8fafc;
     border-radius: 12px;
@@ -10,7 +9,6 @@
     box-sizing: border-box;
 }
 
-/* En-tête */
 .complaint-detail-header {
     display: flex;
     justify-content: space-between;
@@ -26,7 +24,6 @@
     font-size: 1.8rem;
 }
 
-/* Badges de statut */
 .complaint-state {
     padding: 8px 16px;
     border-radius: 20px;
@@ -39,15 +36,13 @@
 .state-resolue { background-color: #d1fae5; color: #059669; }
 .state-fermee { background-color: #f1f5f9; color: #475569; }
 
-/* LAYOUT GRILLE (Magie opère ici) */
 .complaint-grid-layout {
     display: grid;
-    grid-template-columns: 350px 1fr; /* Colonne info fixe à 350px, le chat prend le reste */
+    grid-template-columns: 350px 1fr;
     gap: 30px;
-    align-items: start; /* Évite que les boites s'étirent verticalement sans raison */
+    align-items: start;
 }
 
-/* --- COLONNE DE GAUCHE --- */
 .complaint-info-box {
     background-color: #ffffff;
     padding: 25px;
@@ -83,7 +78,6 @@
     margin: 8px 0;
 }
 
-/* --- COLONNE DE DROITE (Chat) --- */
 .complaint-messages-section {
     background-color: #ffffff;
     padding: 25px;
@@ -92,7 +86,7 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     display: flex;
     flex-direction: column;
-    height: 600px; /* Fixe la hauteur pour avoir un scroll sur le chat */
+    height: 600px;
 }
 
 .complaint-messages-section h3 {
@@ -103,9 +97,8 @@
     color: #0f172a;
 }
 
-/* Zone des messages (scrollable) */
 .messages-list {
-    flex-grow: 1; /* Prend tout l'espace restant */
+    flex-grow: 1;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -122,13 +115,12 @@
     margin-bottom: auto;
 }
 
-/* Bulles de message */
 .message-item { display: flex; width: 100%; }
 .message-left { justify-content: flex-start; }
 .message-right { justify-content: flex-end; }
 
 .message-content {
-    max-width: 80%; /* Plus de place pour lire sur grand écran */
+    max-width: 80%;
     padding: 15px 20px;
     border-radius: 12px;
     position: relative;
@@ -161,7 +153,6 @@
     text-align: right;
 }
 
-/* Formulaire d'envoi */
 .message-form {
     display: flex;
     flex-direction: column;
@@ -203,15 +194,3 @@
 
 .btn-send-message:hover { background-color: #059669; }
 .btn-send-message:active { transform: scale(0.98); }
-
-/* --- RESPONSIVE DESIGN --- */
-@media (max-width: 900px) {
-    /* Sur petits écrans, on repasse sur 1 seule colonne verticale */
-    .complaint-grid-layout {
-        grid-template-columns: 1fr;
-    }
-    
-    .complaint-messages-section {
-        height: 500px;
-    }
-}

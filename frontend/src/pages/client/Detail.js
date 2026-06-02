@@ -58,7 +58,6 @@ const translations = {
 function Detail() {
     const { language, currency, theme } = useContext(PreferencesContext);
     const t = translations[language] || translations.fr;
-
     const { idArticle } = useParams();
     const { cartItems, setCartItems } = useContext(CartContext);
     const [article, setArticle] = useState({});
@@ -67,14 +66,12 @@ function Detail() {
     const [updatedItem, setUpdatedItem] = useState({
         name: '', price: 0, description: '', image: '', onSale: false
     });
-    
     const [reviews, setReviews] = useState([]);
     const [userId, setUserId] = useState(null);
     const [hasBought, setHasBought] = useState(false);
     const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
     const [isFavorite, setIsFavorite] = useState(false);
 
-    // On retire 'price' de la liste des unités fixes pour le gérer avec la devise
     const unite = {
         weight: 'kg', maxSupportedWeight: 'kg', volume: 'L', tempMin: '°C', tempMax: '°C'
     };
@@ -91,12 +88,12 @@ function Detail() {
                 setArticle(data);
                 setUpdatedItem(data);
             })
-            .catch(error => console.error('Erreur lors de la récupération de l\'article :', error));
+            .catch(error => alert('Erreur lors de la récupération de l\'article :', error));
 
         fetch(`http://localhost:3001/article/${idArticle}/reviews`)
             .then(res => res.json())
             .then(data => setReviews(data))
-            .catch(err => console.error('Erreur récupération avis:', err));
+            .catch(error => alert('Erreur récupération avis:', error));
 
         const storedUserId = localStorage.getItem('userId');
         if (storedUserId) {
@@ -104,12 +101,12 @@ function Detail() {
             fetch(`http://localhost:3001/user/${storedUserId}/hasBought/${idArticle}`)
                 .then(res => res.json())
                 .then(data => setHasBought(data.hasBought))
-                .catch(err => console.error('Erreur vérification achat:', err));
+                .catch(error => alert('Erreur vérification achat:', error));
                 
             fetch(`http://localhost:3001/favorites/check?idUser=${storedUserId}&idItem=${idArticle}`)
                 .then(res => res.json())
                 .then(data => setIsFavorite(data.isFavorite))
-                .catch(err => console.error(err));
+                .catch(error => console.error(error));
         }
     }, [isEditing, idArticle]);
 
@@ -132,7 +129,6 @@ function Detail() {
         .then(res => res.json())
         .then(data => {
             setIsFavorite(data.action === 'added');
-            // Optionnel: on peut enlever l'alerte pour rendre l'ajout plus fluide
         })
         .catch(err => console.error(err));
     };
@@ -156,17 +152,13 @@ function Detail() {
         })
         .then(res => res.json())
         .then(data => {
-            if (data.error) {
-                alert(data.error);
-            } else {
-                alert(t.reviewSuccess);
-                setNewReview({ rating: 5, comment: '' });
-                fetch(`http://localhost:3001/article/${idArticle}/reviews`)
-                    .then(res => res.json())
-                    .then(data => setReviews(data));
-            }
+            alert(t.reviewSuccess);
+            setNewReview({ rating: 5, comment: '' });
+            fetch(`http://localhost:3001/article/${idArticle}/reviews`)
+                .then(res => res.json())
+                .then(data => setReviews(data));
         })
-        .catch(err => console.error('Erreur lors de l\'ajout de l\'avis:', err));
+        .catch(error => console.error('Erreur lors de l\'ajout de l\'avis:', error));
     };
 
     return (
@@ -200,7 +192,6 @@ function Detail() {
                                         <tr key={key}>
                                             <td style={{color: 'var(--text-color)'}}>{t.mapping[key]}</td>
                                             <td style={{color: 'var(--text-color)'}}>
-                                                {/* On formate dynamiquement si la clé est le prix, sinon on applique l'unité standard */}
                                                 {key === 'price' ? formatPrice(value) : `${value} ${unite[key] || ''}`}
                                             </td>
                                         </tr>
@@ -220,11 +211,7 @@ function Detail() {
                         <h3 style={{color: 'var(--text-color)'}}>{t.addReviewTitle}</h3>
                         <div className="form-group">
                             <label style={{color: 'var(--text-color)'}}>{t.ratingLabel}</label>
-                            <select 
-                                value={newReview.rating} 
-                                onChange={(e) => setNewReview({...newReview, rating: parseInt(e.target.value)})}
-                                style={{backgroundColor: 'var(--bg-color)', color: 'var(--text-color)'}}
-                            >
+                            <select value={newReview.rating} onChange={(e) => setNewReview({...newReview, rating: parseInt(e.target.value)})} style={{backgroundColor: 'var(--bg-color)', color: 'var(--text-color)'}}>
                                 {[5, 4, 3, 2, 1].map(num => (
                                     <option key={num} value={num}>{num} {t.stars}</option>
                                 ))}
@@ -232,13 +219,7 @@ function Detail() {
                         </div>
                         <div className="form-group">
                             <label style={{color: 'var(--text-color)'}}>{t.commentLabel}</label>
-                            <textarea 
-                                value={newReview.comment} 
-                                onChange={(e) => setNewReview({...newReview, comment: e.target.value})} 
-                                required 
-                                rows="4"
-                                style={{backgroundColor: 'var(--bg-color)', color: 'var(--text-color)'}}
-                            />
+                            <textarea value={newReview.comment} onChange={(e) => setNewReview({...newReview, comment: e.target.value})} required rows="4" style={{backgroundColor: 'var(--bg-color)', color: 'var(--text-color)'}}/>
                         </div>
                         <button type="submit" className="button btn-save">{t.submitReview}</button>
                     </form>

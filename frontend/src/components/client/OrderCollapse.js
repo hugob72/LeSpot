@@ -42,7 +42,6 @@ const translations = {
     }
 };
 
-// Taux de conversion fictifs (à adapter)
 const exchangeRates = { EUR: 1, USD: 1.08, GBP: 0.85 };
 const symbols = { EUR: '€', USD: '$', GBP: '£' };
 
@@ -50,7 +49,6 @@ function OrderCollapse({ order, isExpanded, toggleOrder }) {
     const { language, currency } = useContext(PreferencesContext);
     const t = translations[language] || translations.fr;
 
-    // Fonction de formatage de devise
     const formatPrice = (priceInEuros) => {
         const converted = priceInEuros * exchangeRates[currency];
         return `${converted.toFixed(2)} ${symbols[currency]}`;
@@ -70,7 +68,6 @@ function OrderCollapse({ order, isExpanded, toggleOrder }) {
                     </span>
                 </div>
                 <div className="order-collapse-header-right">
-                    {/* Application de la devise sur le total */}
                     <p className="order-collapse-total">{formatPrice(orderTotal)}</p>
                     <span className="order-collapse-toggle-text">
                         {isExpanded ? t.seeLess : t.seeMore}
@@ -81,14 +78,12 @@ function OrderCollapse({ order, isExpanded, toggleOrder }) {
             {isExpanded && (
                 <div className="order-collapse-content">
                     <div style={{display: 'flex', justifyContent: 'flex-end', marginBottom: '15px'}}>
-                        <button 
-                            className="btn-reclamation" 
+                        <button className="btn-reclamation" 
                             onClick={(e) => { 
                                 e.stopPropagation(); 
                                 window.location.href = `/create-complaint?orderId=${order.idOrder}`; 
                             }}
-                            style={{ padding: '8px 15px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-                        >
+                            style={{ padding: '8px 15px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
                             {t.complaint}
                         </button>
                     </div>
@@ -126,7 +121,6 @@ function OrderCollapse({ order, isExpanded, toggleOrder }) {
                                     <p className="order-item-quantity">{t.qty} {item.quantity}</p>
                                 </div>
                                 <div className="order-item-price">
-                                    {/* Application de la devise sur le prix unitaire */}
                                     {formatPrice(item.unitPrice * item.quantity)}
                                 </div>
                             </div>

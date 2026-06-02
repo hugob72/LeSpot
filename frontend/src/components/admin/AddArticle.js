@@ -216,7 +216,6 @@ function AddArticle() {
             )}
 
             <div className="center-container">
-                {/* CORRECTION DU PIÈGE : On assigne les bonnes fonctions aux bons boutons */}
                 {idArticle ? 
                 <button onClick={handleChangeItem} className="button btn-save">Modifier</button>
                 :

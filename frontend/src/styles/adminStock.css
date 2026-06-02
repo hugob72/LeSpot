@@ -98,7 +98,6 @@
     opacity: 1;
 }
 
-/* --- BARRE DE FILTRES COMMANDES --- */
 .admin-filters-bar {
     display: flex;
     flex-wrap: wrap;
@@ -108,7 +107,7 @@
     border-radius: 8px;
     border: 1px solid #e2e8f0;
     margin-bottom: 25px;
-    align-items: flex-end; /* Aligne le bouton avec les inputs */
+    align-items: flex-end;
 }
 
 .admin-filter-group {

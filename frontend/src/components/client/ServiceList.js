@@ -28,10 +28,8 @@ const translations = {
 function ServiceList() {
     const { language, currency } = useContext(PreferencesContext);
     const t = translations[language] || translations.fr;
-
     const [servicesList, setServicesList] = useState([]);
     const [displayedServices, setDisplayedServices] = useState([]);
-
     const [searchTerm, setSearchTerm] = useState('');
     const [maxPrice, setMaxPrice] = useState(''); 
     const [maxDuration, setMaxDuration] = useState('');
@@ -40,30 +38,23 @@ function ServiceList() {
         fetch('http://localhost:3001/catalog/services')
             .then(response => response.json())
             .then(data => {
-                if (Array.isArray(data)) {
-                    setServicesList(data);
-                    setDisplayedServices(data);
-                }
+                setServicesList(data);
+                setDisplayedServices(data);
             })
             .catch(error => console.error('Erreur lors de la récupération des prestations :', error));
     }, []);
 
-    // Filtrage dynamique intégrant la conversion de devise
     useEffect(() => {
         let filtered = servicesList.filter(service => {
             const matchSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase());
-            
-            // On convertit le prix de base dans la devise actuelle pour comparer avec la saisie de l'utilisateur
             const convertedPrice = service.basePrice * exchangeRates[currency];
             const matchPrice = maxPrice === '' || convertedPrice <= Number(maxPrice);
-            
             const matchDuration = maxDuration === '' || Number(service.defaultDuration) <= Number(maxDuration);
-
             return matchSearch && matchPrice && matchDuration;
         });
 
         setDisplayedServices(filtered);
-    }, [searchTerm, maxPrice, maxDuration, servicesList, currency]); // Ajout de currency dans les dépendances
+    }, [searchTerm, maxPrice, maxDuration, servicesList, currency]);
 
     const handleReset = (e) => {
         e.preventDefault();
@@ -96,7 +87,6 @@ function ServiceList() {
                                 <option value="120">{t.min120}</option>
                             </select>
                         </div>
-
                         <button className="btn-reset" onClick={handleReset}>{t.reset}</button>
                     </form>
                 </div>
@@ -113,7 +103,7 @@ function ServiceList() {
                     )}
                 </main>
             </div>
-            <Footer />
+            <Footer/>
         </div>
     );
 }

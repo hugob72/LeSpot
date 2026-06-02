@@ -10,7 +10,6 @@ import '../../styles/serviceDetail.css';
 
 const exchangeRates = { EUR: 1, USD: 1.08, GBP: 0.85 };
 const symbols = { EUR: '€', USD: '$', GBP: '£' };
-
 const translations = {
     fr: {
         loading: "Chargement des disponibilités...",
@@ -49,15 +48,12 @@ const translations = {
 function ServiceDetail() {
     const { language, currency, theme } = useContext(PreferencesContext);
     const t = translations[language] || translations.fr;
-
     const { id } = useParams();
     const history = useHistory();
     const userId = localStorage.getItem('userId');
     const { cartItems, setCartItems } = useContext(CartContext);
-
     const [service, setService] = useState(null);
     const [slots, setSlots] = useState([]);
-    
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedSlot, setSelectedSlot] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -79,8 +75,8 @@ function ServiceDetail() {
                 if (Array.isArray(data)) setSlots(data);
                 setLoading(false);
             })
-            .catch(err => {
-                console.error('Erreur créneaux:', err);
+            .catch(error => {
+                console.error('Erreur créneaux:', error);
                 setLoading(false);
             });
     }, [id]);
@@ -113,10 +109,8 @@ function ServiceDetail() {
             return;
         }
 
-        // On adapte le nom de l'article dans le panier en fonction de la langue
         const formattedDate = new Date(selectedSlot.date).toLocaleDateString(language === 'fr' ? 'fr-FR' : 'en-US');
         const formattedTime = selectedSlot.heure.substring(0,5);
-        
         const serviceCartItem = {
             isService: true, 
             idService: selectedSlot.idService,

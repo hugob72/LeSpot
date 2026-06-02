@@ -35,23 +35,20 @@
     margin: 0;
 }
 
-/* 1. Le lien devient un bloc Flex pour bien transmettre la hauteur et l'espacement */
 .card-link {
     text-decoration: none;
     color: inherit;
     display: flex; 
-    margin: 15px; /* C'est ça qui va décoller tes cartes ! */
+    margin: 15px;
 }
 
-/* 2. On s'assure que la carte s'étire parfaitement dans le lien */
 .service-card {
     display: flex;
     flex-direction: column;
-    flex-grow: 1; /* Permet à la carte de prendre 100% de la hauteur du lien */
-    margin: 0; /* On annule la marge ici, car c'est le lien au-dessus qui s'en charge */
+    flex-grow: 1;
+    margin: 0;
 }
 
-/* 3. Le reste ne change pas */
 .service-card-image {
     width: 100%;
     aspect-ratio: 4 / 3; 

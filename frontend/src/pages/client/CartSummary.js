@@ -40,7 +40,6 @@ function CartSummary() {
     const t = translations[language] || translations.fr;
     const userId = localStorage.getItem('userId');
 
-    // Fonction de formatage de devise
     const formatPrice = (priceInEuros) => {
         const converted = priceInEuros * exchangeRates[currency];
         return `${converted.toFixed(2)} ${symbols[currency]}`;
@@ -62,14 +61,14 @@ function CartSummary() {
         }
     };
 
-    const handleBlur = (itemIndex, quantity) => {
+    const handleAutoDelete = (itemIndex, quantity) => {
         if (quantity === '' || quantity <= 0) {
             removeItem(itemIndex);
         }
     };
 
     const removeItem = (indexToRemove) => {
-        setCartItems(cartItems.filter((_, index) => index !== indexToRemove));
+        setCartItems(cartItems.filter((index) => index !== indexToRemove));
     };
 
     const totalInEuros = cartItems.reduce((acc, item) => acc + item.price * (parseInt(item.quantity) || 0), 0);
@@ -97,21 +96,9 @@ function CartSummary() {
                                 <div className="cart-summary-item-controls">
                                     <div>
                                         <label className="cart-summary-label">{t.qty}</label>
-                                        <input 
-                                            type="number" 
-                                            min="0" 
-                                            value={item.quantity} 
-                                            onChange={(e) => updateQuantity(index, e.target.value)}
-                                            onBlur={() => handleBlur(index, item.quantity)}
-                                            className="cart-summary-input"
-                                            disabled={item.isService}
-                                            title={item.isService ? t.fixedQty : ""}
-                                        />
+                                        <input type="number" min="0" value={item.quantity} onChange={(e) => updateQuantity(index, e.target.value)} onBlur={() => handleAutoDelete(index, item.quantity)} className="cart-summary-input" disabled={item.isService} title={item.isService ? t.fixedQty : ""}/>
                                     </div>
-                                    <button 
-                                        onClick={() => removeItem(index)}
-                                        className="cart-summary-delete-btn"
-                                    >
+                                    <button onClick={() => removeItem(index)} className="cart-summary-delete-btn">
                                         {t.delete}
                                     </button>
                                 </div>
